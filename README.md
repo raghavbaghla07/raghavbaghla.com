@@ -1,6 +1,6 @@
-﻿# Raghav Baghla — creative portfolio
+# Raghav Baghla — creative portfolio
 
-Next.js App Router, TypeScript, Tailwind CSS, Tiptap, Supabase PostgreSQL/Auth, and Cloudflare R2. Designed for the existing Vercel deployment with GoDaddy registration and Cloudflare DNS.
+Next.js App Router, TypeScript, Tailwind CSS, Tiptap, Supabase PostgreSQL/Auth/Storage. Designed for the existing Vercel deployment with GoDaddy registration and Cloudflare DNS.
 
 ## Local preview
 
@@ -11,7 +11,7 @@ The homepage includes clearly labelled illustrative concepts until Supabase is c
 ## Connect Supabase
 
 1. Create a Supabase project in a region close to your audience.
-2. Run `supabase/schema.sql`, then `supabase/002-guest-interactions.sql`, once each in that new project's SQL Editor. Keep these migrations in Git; add new files for future changes rather than rerunning them.
+2. Run `supabase/schema.sql`, then `supabase/002-guest-interactions.sql` and `supabase/003-free-media-storage.sql`, once each in that new project's SQL Editor. Keep these migrations in Git; add new files for future changes rather than rerunning them.
 3. In Authentication > Users, create your owner account with an email/password. Use a confirmed email. Copy that user's UUID, then run the `insert into public.admins` statement at the end of the schema with your UUID. Only this membership grants publishing permissions; signing up alone does not.
 4. Enable email/password login for the owner. Disable public signups after creating the owner account. Visitors need no accounts or login. Set Site URL to `https://raghavbaghla.com`.
 5. Configure SMTP if you need owner password recovery emails. Guest comments are limited to five per visitor/IP fingerprint per hour and always require approval; all guest mutations are limited to sixty per IP fingerprint per hour.
@@ -19,17 +19,15 @@ The homepage includes clearly labelled illustrative concepts until Supabase is c
 
 Supabase RLS enforces private drafts and owner-only publishing/moderation. Guest database mutations are accessible only to the server role through controlled API routes with validation, same-origin checks, signed HTTP-only visitor cookies, and database rate limiting. IP fingerprints are hashed and rate-limit events expire after one day. Clearing cookies can allow another like; this is a portfolio reaction feature, not an election-grade vote system. Visitor names and approved comments are public; visitor IDs and fingerprints are not.
 
-## Connect Cloudflare R2
+## Free media storage
 
-1. Activate R2 in Cloudflare (billing details may be required even when usage is within the free allowance). Create a bucket using Standard storage.
-2. Add the custom domain `media.raghavbaghla.com` to that bucket. Published media is public; do not upload confidential files or private client assets, including while drafting. Configure a Cloudflare cache rule for this media hostname and appropriate cache eligibility for your supported public file types. Using Cloudflare for DNS alone does not configure media caching.
-3. Apply `cloudflare/r2-cors.json` in the bucket's CORS settings. Add an explicit Vercel preview origin if required. Remove localhost from production CORS if no longer needed.
-4. Create an R2 object read/write API token scoped to this bucket. Put its access key ID/secret, Cloudflare account ID, bucket name, and media URL into the server-only variables in `.env.local` and Vercel.
-5. Restart the local server or redeploy on Vercel. Sign in at `/studio` and test a cover image, an inline image, and a file attachment.
+Run `supabase/003-free-media-storage.sql` to create the `portfolio-media` bucket. Only the owner can upload or delete files. Media URLs are public, including assets attached to private drafts; upload only material you intend to make public.
 
-The server authenticates the owner before issuing a two-minute upload URL. Files travel directly from the browser to R2, avoiding Vercel function body-size limits. Supported uploads: JPG, PNG, WebP, PDF, DOCX, TXT; 20 MB maximum after image processing. Images are resized to at most 1800 px and converted to WebP when that reduces size or downscaling is needed. Inline images can have their alt text edited below the editor. Keep originals outside the website. No paid image transformation service is required.
+Files travel directly from your browser to Supabase Storage, avoiding Vercel function upload limits. Supported formats: JPG, PNG, WebP, PDF, DOCX and TXT, up to 20 MB each. Images are resized to at most 1800 px and converted to WebP when smaller. Long browser cache lifetimes reduce repeat downloads; no paid image transformation service is used.
 
-Removing an attachment/cover or deleting a post does not delete its R2 files. Delete unused objects manually in R2; a future media library can automate this. R2's free allowance is limited; monitor storage and operation usage. The site does not promise unlimited free storage.
+Stay on Supabase Free: currently 1 GB file storage and separate 5 GB cached / 5 GB uncached monthly egress allowances. Exceeding free quotas can restrict service; the Free plan does not automatically bill for overages. Provider plans can change, so this cannot guarantee free hosting forever. See [Supabase cost controls](https://supabase.com/docs/guides/platform/cost-control) and [storage pricing](https://supabase.com/docs/guides/storage/pricing). Cloudflare remains your DNS provider; no R2 subscription or media subdomain is needed.
+
+Removing an attachment or deleting a post leaves its files in storage. Delete unused files in the Supabase dashboard, and keep originals backed up elsewhere.
 
 ## Daily publishing
 
@@ -43,10 +41,10 @@ Set `NEXT_PUBLIC_CONTACT_EMAIL` only after confirming the mailbox exists. Recomm
 
 ## Long-term operation
 
-Back up PostgreSQL and R2 files separately and test restoration. Supabase database backups do not include the actual media files. Monitor free-plan limits and inactivity pausing before relying on the free plan for a permanent live site. Keep project ownership, domain, Vercel, Supabase, and Cloudflare accounts under your control. Content is stored as Tiptap JSON plus ordinary PostgreSQL records; R2 uses the S3-compatible API.
+Back up PostgreSQL and media files separately and test restoration. Supabase database backups do not include the actual media files. Monitor free-plan limits and inactivity pausing before relying on the free plan for a permanent live site. Keep project ownership, domain, Vercel, Supabase, and Cloudflare accounts under your control. Content is stored as Tiptap JSON plus ordinary PostgreSQL records; media files use Supabase Storage.
 
 ## Checks and deployment
 
 Run `npx tsc --noEmit` and `npm run build`.
 
-Push to the branch linked to your existing Vercel project after configuring environments. The domain and nameservers need no changes for the website itself; R2's media subdomain needs its own setup. No credentials, commits, pushes, or production deployment are created automatically by the local preview.
+Push to the branch linked to your existing Vercel project after configuring environments. The domain and nameservers need no changes for the website itself; Supabase Storage needs the bucket migration. No credentials, commits, pushes, or production deployment are created automatically by the local preview.

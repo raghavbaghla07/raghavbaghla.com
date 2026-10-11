@@ -212,7 +212,7 @@ export function Studio() {
   async function remove(post: Post) {
     if (
       !window.confirm(
-        `Delete “${post.title}”? This also deletes its likes and comments. Uploaded media remains in R2.`,
+        `Delete “${post.title}”? This also deletes its likes and comments. Uploaded media remains in storage.`,
       )
     )
       return;
@@ -428,8 +428,8 @@ export function Studio() {
             <strong>Your studio is ready to explore.</strong>
             <span>
               Text drafts save in this browser. Publishing, media uploads,
-              likes, and comments need Supabase and R2. Setup instructions are
-              in the repository README.
+              likes, and comments need Supabase. Setup instructions are in the
+              repository README.
             </span>
           </div>
         )}
@@ -667,7 +667,7 @@ export function Studio() {
                   <p className="muted small">
                     Media is uploaded to a public media bucket. Keep
                     confidential material out of uploads. Removing an attachment
-                    here does not delete the file from R2.
+                    here does not delete the file from storage.
                   </p>
                 </div>
               )}

@@ -5,7 +5,7 @@ export async function uploadFile(
 ): Promise<{ url: string; name: string; size: number }> {
   if (demo)
     throw new Error(
-      "Connect Supabase and R2 to upload media. You can preview and save text locally for now.",
+      "Connect Supabase to upload media. You can preview and save text locally for now.",
     );
   let upload = file;
   if (["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
@@ -30,29 +30,29 @@ export async function uploadFile(
     data: { session },
   } = await getSupabase()!.auth.getSession();
   if (!session) throw new Error("Please sign in again.");
-  const response = await fetch("/api/uploads", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${session.access_token}`,
-    },
-    body: JSON.stringify({
-      name: upload.name,
-      type: upload.type,
-      size: upload.size,
-    }),
+  const extensions: Record<string, string> = {
+    "image/jpeg": "jpg",
+    "image/png": "png",
+    "image/webp": "webp",
+    "application/pdf": "pdf",
+    "text/plain": "txt",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+      "docx",
+  };
+  const extension = extensions[upload.type];
+  if (!extension || upload.size === 0 || upload.size > 20 * 1024 * 1024)
+    throw new Error("Use JPG, PNG, WebP, PDF, DOCX, or TXT files up to 20 MB.");
+  const storage = getSupabase()!.storage.from("portfolio-media");
+  const path = `${session.user.id}/${crypto.randomUUID()}.${extension}`;
+  const { error } = await storage.upload(path, upload, {
+    contentType: upload.type,
+    cacheControl: "31536000",
+    upsert: false,
   });
-  const data = await response.json();
-  if (!response.ok)
-    throw new Error(data.error ?? "Couldn’t prepare the upload.");
-  const put = await fetch(data.uploadUrl, {
-    method: "PUT",
-    headers: { "Content-Type": upload.type },
-    body: upload,
-  });
-  if (!put.ok)
-    throw new Error(
-      "Upload failed. Please check your R2 CORS configuration and try again.",
-    );
-  return { url: data.publicUrl, name: file.name, size: upload.size };
+  if (error) throw new Error(`Upload failed: ${error.message}`);
+  return {
+    url: storage.getPublicUrl(path).data.publicUrl,
+    name: file.name,
+    size: upload.size,
+  };
 }
