@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowUpRight, Search } from "lucide-react";
 import { categories, type PostSummary } from "@/lib/content";
 export function WorkGrid({
   posts,
@@ -21,16 +20,9 @@ export function WorkGrid({
     <section id="work" className="work-section">
       <div className="section-heading">
         <div>
-          <span className="eyebrow">THE GOOD STUFF</span>
-          <h2>
-            A few words.
-            <br />A lot of possibilities.
-          </h2>
+          <h2>Selected writing</h2>
         </div>
-        <p>
-          Posts, ideas, and copy.
-          <br />A little window into how I think.
-        </p>
+
       </div>
       {demo && (
         <p className="demo-note">
@@ -52,7 +44,6 @@ export function WorkGrid({
           ))}
         </div>
         <label className="search">
-          <Search size={16} />
           <input
             aria-label="Search work"
             placeholder="Find an idea…"
@@ -62,39 +53,8 @@ export function WorkGrid({
         </label>
       </div>
       <div className="work-grid">
-        {shown.map((post, index) => (
+        {shown.map((post) => (
           <Link className="work-card" href={`/work/${post.slug}`} key={post.id}>
-            <div className={`card-art ${post.color}`}>
-              {post.cover_url ? (
-                <img
-                  src={post.cover_url}
-                  alt={post.title}
-                  loading="lazy"
-                  decoding="async"
-                />
-              ) : (
-                <>
-                  <span className="art-label">
-                    {post.category.toUpperCase()} /{" "}
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <h3>{post.title}</h3>
-                  <span className="art-shape" aria-hidden="true">
-                    {post.color === "peach"
-                      ? "✳"
-                      : post.color === "lavender"
-                        ? "↗"
-                        : "✺"}
-                  </span>
-                  <span className="art-footer">
-                    A LITTLE IDEA BY RAGHAV BAGHLA
-                  </span>
-                </>
-              )}
-              <span className="card-arrow">
-                <ArrowUpRight size={22} />
-              </span>
-            </div>
             <div className="card-meta">
               <span>{post.category}</span>
               <span>
