@@ -4,6 +4,7 @@ import { Header, Footer } from "@/components/header";
 import { WorkGrid } from "@/components/work-grid";
 import { getPosts } from "@/lib/posts";
 import { configured, safeUrl } from "@/lib/content";
+import { OpeningSequence } from "@/components/opening-sequence";
 export const dynamic = "force-dynamic";
 export default async function Home() {
   const posts = await getPosts();
@@ -13,7 +14,7 @@ export default async function Home() {
       "https://www.linkedin.com/in/raghavbaghla07",
   );
   return (
-    <>
+    <OpeningSequence>
       <Header />
       <main>
         <section className="hero">
@@ -131,6 +132,6 @@ export default async function Home() {
         </section>
       </main>
       <Footer />
-    </>
+    </OpeningSequence>
   );
 }
