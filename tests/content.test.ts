@@ -6,8 +6,9 @@ test('draft validation permits unfinished drafts but rejects empty and oversized
   assert.equal(validateDraft({title:'',body:'A thought',images:[]}), null);
   assert.match(validateDraft({title:' ',body:'',images:[]})!, /something/i);
   assert.match(validateDraft({title:'a'.repeat(161),body:'ok',images:[]})!, /160/);
-  assert.match(validateDraft({title:'ok',body:'a'.repeat(30001),images:[]})!, /30,000/);
-  assert.match(validateDraft({title:'ok',body:'ok',images:Array.from({length:5},()=>({path:'a/b.webp',alt:''}))})!, /four/i);
+  assert.equal(validateDraft({title:'ok',body:'a'.repeat(100000),images:[]}), null);
+  assert.match(validateDraft({title:'ok',body:'a'.repeat(100001),images:[]})!, /100,000/);
+  assert.match(validateDraft({title:'ok',body:'ok',images:Array.from({length:21},()=>({path:'a/b.webp',alt:''}))})!, /twenty/i);
 });
 
 test('image validation rejects active content and oversize images', () => {

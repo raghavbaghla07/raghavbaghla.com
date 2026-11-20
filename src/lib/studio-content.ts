@@ -1,13 +1,15 @@
 export type PostImage = { path: string; alt: string };
-export type DraftInput = { title: string; body: string; images: PostImage[] };
+import type { ArticleContent } from './article';
+export type DraftInput = { title: string; body: string; images: PostImage[]; article?: ArticleContent | null };
 export type Draft = DraftInput & { id: string; revision: number; created_at: string; updated_at: string };
 export type PublishedPost = DraftInput & { id: string; slug: string; published_at: string; updated_at: string };
 
 export function validateDraft(value: DraftInput): string | null {
   if (!value.title.trim() && !value.body.trim() && !value.images.length) return 'Write something before saving.';
   if (Array.from(value.title).length > 160) return 'Keep the title within 160 characters.';
-  if (Array.from(value.body).length > 30000) return 'Keep the post within 30,000 characters.';
-  if (value.images.length > 4) return 'Choose up to four images.';
+  if (Array.from(value.body).length > 100000) return 'Keep the article within 100,000 characters.';
+  if (value.images.length > 20) return 'Choose up to twenty images.';
+  if (value.article && new TextEncoder().encode(JSON.stringify(value.article)).length > 1000000) return 'This article has too much formatting. Keep the article document under 1 MB.';
   if (value.images.some(image => Array.from(image.alt).length > 300)) return 'Keep image descriptions within 300 characters.';
   return null;
 }

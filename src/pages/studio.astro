@@ -1,80 +1,77 @@
 ---
 import '@fontsource/montserrat/latin-400.css';
+import '@fontsource/montserrat/latin-400-italic.css';
+import '@fontsource/montserrat/latin-600.css';
+import '@fontsource/montserrat/latin-700.css';
+import '@fontsource/montserrat/latin-700-italic.css';
 import '../styles/studio.css';
+import '../styles/article.css';
 import { configured } from '../lib/supabase';
 export const prerender = true;
+const tools = [
+  ['bold','B','Bold (Ctrl+B)'],['italic','I','Italic (Ctrl+I)'],['underline','U','Underline (Ctrl+U)'],
+  ['strike','S','Strikethrough'],['highlight','▰','Highlight'],['code','<>','Inline code'],
+  ['bulletList','• List','Bullet list'],['orderedList','1. List','Numbered list'],['blockquote','❝','Blockquote'],
+  ['codeBlock','{ }','Code block'],['horizontalRule','—','Divider'],['link','↗','Insert or edit link'],['clear','Tx','Clear formatting'],
+  ['indent','→','Indent list item'],['outdent','←','Outdent list item'],
+];
 ---
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="robots" content="noindex, nofollow" />
-    <meta name="referrer" content="no-referrer" />
-    <meta name="theme-color" content="#090909" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" /><meta name="referrer" content="no-referrer" />
+    <meta name="theme-color" content="#090909" /><link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <title>Your studio · Raghav Baghla</title>
   </head>
   <body>
-    <header class="studio-header"><a href="/">Raghav Baghla.</a><span class="studio-label">Writing studio</span><a href="/writing/">View writing</a></header>
+    <header class="studio-header"><a href="/">Raghav Baghla<span>.</span></a><span class="studio-label">YOUR WRITING SPACE</span><a href="/writing/">View writing ↗</a></header>
     <main id="studio-root" data-configured={configured}>
       <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
       <section id="auth-panel" class="auth-panel" aria-labelledby="auth-title">
-        <p class="eyebrow">A space of your own</p>
-        <h1 id="auth-title">Good thoughts<br />start here.</h1>
+        <p class="eyebrow">A space of your own</p><h1 id="auth-title">Good thoughts<br />start here.</h1>
         <p class="secondary">Sign in to write, save private drafts, and share when you’re ready.</p>
-        {configured ? <form id="login-form">
-          <label for="email">Email</label>
-          <input id="email" name="email" type="email" autocomplete="username" required />
-          <label for="password">Password</label>
-          <input id="password" name="password" type="password" autocomplete="current-password" required />
-          <button class="primary" type="submit" id="login-button">Sign in</button>
-          <button type="button" id="email-link-button">Email me a sign-in link</button>
-          <button class="text-button" type="button" id="reset-button">Forgot password?</button>
-        </form> : <p class="setup-notice">Your studio isn’t connected yet. Sign-in will be available once setup is complete.</p>}
+        {configured ? <form id="login-form"><label for="email">Email</label><input id="email" name="email" type="email" autocomplete="username" required /><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required /><button class="primary" type="submit" id="login-button">Sign in</button><button type="button" id="email-link-button">Email me a sign-in link</button><button class="text-button" type="button" id="reset-button">Forgot password?</button></form> : <p class="setup-notice">Your studio isn’t connected yet. Sign-in will be available once setup is complete.</p>}
         <noscript><p>Enable JavaScript to use your private studio.</p></noscript>
       </section>
-
-      <section id="recovery-panel" class="auth-panel" aria-labelledby="recovery-title" hidden>
-        <h1 id="recovery-title">A fresh password.</h1>
-        <form id="recovery-form">
-          <label for="new-password">New password</label>
-          <input id="new-password" type="password" autocomplete="new-password" minlength="12" required />
-          <p class="secondary">Use at least 12 characters.</p>
-          <button type="submit" class="primary">Save password</button>
-        </form>
-      </section>
-
+      <section id="recovery-panel" class="auth-panel" aria-labelledby="recovery-title" hidden><h1 id="recovery-title">A fresh password.</h1><form id="recovery-form"><label for="new-password">New password</label><input id="new-password" type="password" autocomplete="new-password" minlength="12" required /><p class="secondary">Use at least 12 characters.</p><button type="submit" class="primary">Save password</button></form></section>
       <section id="workspace" class="workspace" aria-label="Private writing studio" hidden>
-        <aside class="draft-sidebar">
-          <div class="sidebar-top"><h2>Your writing</h2><button type="button" class="new-button" id="new-draft">New draft</button></div>
-          <p class="secondary small">Saved privately. Published when you decide.</p>
+        <aside id="draft-sidebar" class="draft-sidebar">
+          <div class="sidebar-top"><div><p class="eyebrow">LIBRARY</p><h2>Your articles</h2></div><button type="button" id="new-draft" class="new-button" aria-label="New article">+</button></div>
+          <label class="sr-only" for="draft-search">Search articles</label><input id="draft-search" type="search" placeholder="Search your writing…" />
+          <div class="draft-filters" aria-label="Filter articles"><button type="button" data-filter="all" aria-pressed="true">All</button><button type="button" data-filter="draft" aria-pressed="false">Drafts</button><button type="button" data-filter="published" aria-pressed="false">Published</button></div>
           <div id="draft-list" class="draft-list" aria-label="Saved drafts"></div>
-          <button type="button" id="sign-out" class="text-button">Sign out</button>
+          <div class="sidebar-footer"><span class="privacy-dot"></span> Only you can access this studio.<button type="button" id="sign-out" class="text-button">Sign out</button></div>
         </aside>
-
-        <div class="composer-panel">
-          <div class="composer-heading"><div class="identity"><span class="initials" aria-hidden="true">rb.</span><div><p>Raghav Baghla</p><span id="post-status" class="privacy-label">Private draft</span></div></div><span id="save-status" class="secondary small" aria-live="polite">Not saved yet</span></div>
-          <form id="composer-form">
-            <fieldset id="composer-fields">
-              <label for="post-title" class="sr-only">Post title</label>
-              <input id="post-title" class="title-input" placeholder="Give this thought a title" maxlength="160" autocomplete="off" />
-              <label for="post-body" class="sr-only">Post body</label>
-              <textarea id="post-body" class="body-input" placeholder="What’s on your mind?" maxlength="30000" rows="12"></textarea>
-              <div id="image-list" class="image-list" aria-label="Attached images"></div>
-              <div class="writing-tools"><div><label for="image-upload" class="upload-label">Add images</label><input id="image-upload" type="file" accept="image/jpeg,image/png,image/webp" multiple /><span class="secondary small">Up to 4 images · 8 MB each</span></div><span id="character-count" class="secondary small">0 characters</span></div>
-            </fieldset>
-            <div class="composer-actions">
-              <div class="secondary-actions"><button type="button" id="preview-button">Preview</button><button type="button" id="copy-button">Copy text</button></div>
-              <div class="publish-actions"><button type="submit" id="save-button">Save draft</button><button type="button" id="publish-button" class="primary">Publish</button></div>
+        <div class="editor-column">
+          <div class="workspace-actions">
+            <div class="status-group"><button type="button" id="toggle-sidebar" class="icon-button" aria-label="Toggle article library" aria-expanded="true" aria-controls="draft-sidebar">☰</button><div><span id="post-status" class="status-badge">Private draft</span><span id="save-status" class="save-status" aria-live="polite">Not saved yet</span></div></div>
+            <div class="publish-actions"><button type="button" id="focus-button" aria-pressed="false">Focus</button><button type="button" id="preview-button">Preview</button><button type="submit" form="composer-form" id="save-button">Save draft</button><button type="button" id="publish-button" class="primary">Publish ↗</button></div>
+          </div>
+          <form id="composer-form" class="composer-panel">
+            <div class="format-toolbar" role="toolbar" aria-label="Article formatting">
+              <div class="toolbar-group"><button type="button" data-command="undo" aria-label="Undo (Ctrl+Z)" title="Undo (Ctrl+Z)">↶</button><button type="button" data-command="redo" aria-label="Redo (Ctrl+Shift+Z)" title="Redo (Ctrl+Shift+Z)">↷</button></div>
+              <label class="sr-only" for="block-format">Text style</label><select id="block-format" aria-label="Text style"><option value="paragraph">Paragraph</option><option value="2">Heading 2</option><option value="3">Heading 3</option><option value="4">Heading 4</option></select>
+              <div class="toolbar-group marks">{tools.map(([command,label,name]) => <button type="button" data-command={command} aria-label={name} title={name} aria-pressed="false">{label}</button>)}</div>
+              <details class="toolbar-menu"><summary>Table ▾</summary><div class="table-options"><button type="button" data-command="insertTable">Insert table</button><button type="button" data-command="addRowAfter">Add row below</button><button type="button" data-command="addColumnAfter">Add column after</button><button type="button" data-command="toggleHeaderRow">Toggle header row</button><button type="button" data-command="deleteRow">Delete row</button><button type="button" data-command="deleteColumn">Delete column</button><button type="button" data-command="deleteTable">Delete table</button></div></details>
+              <button type="button" id="toolbar-image" title="Add an image">Image +</button>
+              <select id="code-language" aria-label="Code language" hidden><option value="">Plain text</option><option value="javascript">JavaScript</option><option value="typescript">TypeScript</option><option value="python">Python</option><option value="sql">SQL</option><option value="html">HTML</option><option value="css">CSS</option><option value="bash">Shell</option><option value="json">JSON</option></select>
             </div>
+            <fieldset id="composer-fields" class="article-canvas">
+              <div class="author-line"><span class="initials" aria-hidden="true">rb.</span><span>Raghav Baghla</span><span class="secondary">·</span><span id="reading-time" class="secondary">1 min read</span></div>
+              <label for="post-title" class="sr-only">Article title</label><input id="post-title" class="title-input" placeholder="Your next great thought…" maxlength="160" autocomplete="off" />
+              <div id="cover-preview" class="cover-preview" hidden></div><div id="post-body"></div>
+              <div class="document-footer"><span id="word-count">0 words</span><span id="character-count">0 / 100,000 characters</span><span class="shortcut-hint">Ctrl / ⌘ + S to save</span></div>
+              <details class="article-details"><summary>Article details <span>Summary & tags</span></summary><div class="details-fields"><label for="article-summary">Short summary</label><textarea id="article-summary" rows="3" maxlength="320" placeholder="A short introduction for readers and search results."></textarea><label for="article-tags">Tags</label><input id="article-tags" maxlength="327" placeholder="Books, Learning, Ideas" /><p class="secondary small">Separate with commas · up to 8 tags, 40 characters each.</p></div></details>
+              <details id="images-panel" class="article-details"><summary>Images <span id="image-count">0 / 20</span></summary><div class="details-fields"><label for="image-upload" class="upload-label">Upload images</label><input id="image-upload" type="file" accept="image/jpeg,image/png,image/webp" multiple /><p class="secondary small">JPEG, PNG or WebP · 8 MB each. Select “Insert” to place an image in your article.</p><div id="image-list" class="image-list" aria-label="Attached images"></div></div></details>
+            </fieldset>
           </form>
-          <div class="post-management"><a id="live-post-link" href="/writing/" hidden>View published post</a><button type="button" id="unpublish-button" class="text-button" hidden>Unpublish</button></div>
-          <p class="studio-footnote">Your draft stays private until you publish. Saving edits won’t change a published post.</p>
+          <div class="post-management"><div><a id="live-post-link" href="/writing/" hidden>View published article ↗</a><button type="button" id="unpublish-button" class="text-button" hidden>Unpublish</button></div><div><button type="button" id="copy-button" class="text-button">Copy text</button><button type="button" id="export-button" class="text-button">Download backup</button></div></div>
+          <p class="studio-footnote">Autosaved privately. Only Publish or Update makes your changes public.</p>
         </div>
       </section>
-
-      <dialog id="preview-dialog" aria-labelledby="preview-title"><div class="dialog-heading"><span>Post preview</span><button id="close-preview" type="button">Close</button></div><article><p class="secondary small">Raghav Baghla</p><h2 id="preview-title"></h2><div id="preview-body" class="preview-body"></div><div id="preview-images" class="preview-images"></div></article></dialog>
+      <dialog id="preview-dialog" class="preview-dialog" aria-labelledby="preview-title"><div class="dialog-heading"><span>ARTICLE PREVIEW</span><button id="close-preview" type="button">Close</button></div><article><p class="secondary small" id="preview-byline">Raghav Baghla</p><h2 id="preview-title"></h2><div id="preview-body" class="article-content"></div></article></dialog>
+      <dialog id="link-dialog" aria-labelledby="link-heading"><h2 id="link-heading">Add a link</h2><form id="link-form"><label for="link-url">Link destination</label><input id="link-url" type="text" placeholder="https://example.com" required /><p class="secondary small">Use a full https://, http:// or mailto: address.</p><p id="link-error" class="error" role="alert" hidden></p><div class="confirm-actions"><button type="button" id="link-remove">Remove link</button><button type="button" id="link-cancel">Cancel</button><button class="primary" type="submit">Apply link</button></div></form></dialog>
       <dialog id="confirm-dialog" aria-labelledby="confirm-title"><h2 id="confirm-title"></h2><p id="confirm-description"></p><div class="confirm-actions"><button id="confirm-cancel" type="button">Cancel</button><button id="confirm-proceed" type="button" class="primary">Continue</button></div></dialog>
     </main>
     <script src="../scripts/studio.ts"></script>
