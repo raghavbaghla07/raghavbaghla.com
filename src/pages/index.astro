@@ -2,6 +2,11 @@
 import '@fontsource/montserrat/latin-400.css';
 import ContactFooter from '../components/ContactFooter.astro';
 export const prerender = true;
+
+const careers = [
+  'Writer', 'Designer', 'Founder', 'Filmmaker', 'Teacher', 'Builder',
+  'Photographer', 'Researcher', 'Strategist', 'Storyteller', 'Creator', 'Editor',
+];
 ---
 
 <!doctype html>
@@ -19,11 +24,22 @@ export const prerender = true;
     <main>
       <div class="introduction">
         <p class="greeting" aria-hidden="true">Hii</p>
-        <h1><span class="lead">I am </span><span class="name">Raghav Baghla<span class="period" aria-hidden="true">.</span></span></h1>
-        <nav class="intro-links" aria-label="Quick links">
-          <a class="contact-link" href="#contact">Contact me <span aria-hidden="true">↗</span></a>
-          <a href="/studio/">Open studio <span aria-hidden="true">↗</span></a>
-        </nav>
+        <div class="intro-content">
+          <h1><span class="lead">I am </span><span class="name">Raghav Baghla<span class="period" aria-hidden="true">.</span></span></h1>
+          <p class="career-lead">an engineer turned…</p>
+          <div class="career-stage">
+            <div class="career-cloud" aria-hidden="true">
+              {careers.map((career, index) => (
+                <span style={`--i:${index};--drift:${index % 2 === 0 ? -12 : 12}px`}>{career}</span>
+              ))}
+            </div>
+            <p class="career-answer">figuring it out.</p>
+          </div>
+          <nav class="intro-links" aria-label="Quick links">
+            <a class="contact-link" href="#contact">Contact me <span aria-hidden="true">↗</span></a>
+            <a href="/studio/">Open studio <span aria-hidden="true">↗</span></a>
+          </nav>
+        </div>
       </div>
     </main>
     <nav class="writing-link" aria-label="Writing"><a id="writing-link" href="/writing/" hidden>Writing</a></nav>
@@ -86,15 +102,45 @@ export const prerender = true;
     animation: arrive 900ms cubic-bezier(0.2, 0.7, 0.2, 1) 1800ms both;
   }
   .lead { color: #a8a59e; }
+  .intro-content { width: 100%; min-width: 0; }
+  .career-lead {
+    margin: clamp(1rem, 3vw, 2rem) 0 0;
+    color: #b8b5ae;
+    font-size: clamp(0.95rem, 1.8vw, 1.5rem);
+    animation: arrive 500ms ease 2650ms both;
+  }
+  .career-stage {
+    display: grid;
+    place-items: center;
+    min-height: 7rem;
+    margin: 0.35rem auto 0.8rem;
+  }
+  .career-stage > * { grid-area: 1 / 1; }
+  .career-cloud {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem clamp(0.25rem, 2vw, 1.5rem);
+    width: min(100%, 30rem);
+    color: #a8a59e;
+    font-size: clamp(0.68rem, 1.05vw, 0.9rem);
+  }
+  .career-cloud span {
+    animation: drift-in 1550ms cubic-bezier(0.2, 0.7, 0.2, 1) calc(3000ms + var(--i) * 75ms) both;
+  }
+  .career-answer {
+    margin: 0;
+    color: #e2e9d3;
+    font-size: clamp(1.35rem, 3vw, 2.65rem);
+    letter-spacing: -0.04em;
+    animation: arrive 650ms cubic-bezier(0.2, 0.7, 0.2, 1) 5425ms both;
+  }
   .intro-links {
-    position: absolute;
-    top: calc(50% + clamp(4rem, 6vw, 6rem));
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
     gap: 0.75rem;
     width: 100%;
-    animation: arrive 700ms ease 2700ms both;
+    animation: arrive 600ms ease 5800ms both;
   }
   .intro-links a {
     color: #a8a59e;
@@ -118,8 +164,13 @@ export const prerender = true;
     from { opacity: 0; visibility: hidden; transform: translateY(0.5rem); }
     to { opacity: 1; visibility: visible; transform: translateY(0); }
   }
+  @keyframes drift-in {
+    0% { opacity: 0; visibility: hidden; transform: translate(var(--drift), -1.35rem) scale(.94); }
+    38%, 64% { opacity: 1; visibility: visible; transform: translate(0) scale(1); }
+    100% { opacity: 0; visibility: hidden; transform: translateY(0.5rem) scale(.97); }
+  }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; }
-    .greeting { display: none; }
+    .greeting, .career-cloud { display: none; }
   }
 </style>
