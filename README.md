@@ -3,7 +3,7 @@
 The personal website of Raghav Baghla.
 
 Built with Astro, a strict TypeScript configuration, and plain CSS. The opening
-page is static HTML with CSS animation and no browser JavaScript. Manrope Regular
+page is static HTML with CSS animation and no browser JavaScript. Montserrat Regular
 is self-hosted, with only its Latin subset bundled and no external font requests.
 “Hii” appears once, then disappears before the smaller name introduction appears
 in the same centered position. Reduced-motion preferences show the name immediately.
