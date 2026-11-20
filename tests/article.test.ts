@@ -1,8 +1,21 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { legacyToDoc, articleText, normalizeArticle, renderArticle, safeLink, articleStats } from '../src/lib/article.ts';
+import { legacyToDoc, articleText, normalizeArticle, renderArticle, safeLink, articleStats, validateArticleDocument } from '../src/lib/article.ts';
 
 const images = [{ path: 'owner/photo.webp', alt: 'A photo' }];
+test('raw editor validation rejects documents normalization would truncate before saving', () => {
+  const manyParagraphs = { type: 'doc', content: Array.from({ length: 5001 }, () => ({ type: 'paragraph', content: [{ type: 'text', text: 'hello' }] })) };
+  assert.ok(JSON.stringify(manyParagraphs).length < 1_048_576);
+  assert.match(validateArticleDocument(manyParagraphs)!, /10,000/);
+  assert.equal(validateArticleDocument(legacyToDoc('A safe article')), null);
+  assert.equal(validateArticleDocument({ type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'x'.repeat(100000) }] }] }), null);
+  assert.match(validateArticleDocument({ type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'x'.repeat(100001) }] }] })!, /100,000/);
+  const deep: any = { type: 'doc', content: [] }; let child = deep;
+  for (let i = 0; i < 33; i++) { const next = { type: 'blockquote', content: [] }; child.content.push(next); child = next; }
+  assert.match(validateArticleDocument(deep)!, /32/);
+  const cycle: any = { type: 'doc', content: [] }; cycle.content.push(cycle);
+  assert.match(validateArticleDocument(cycle)!, /invalid/i);
+});
 test('legacy text preserves literal markup and paragraphs', () => {
   const doc = legacyToDoc('Hello <script>\nworld\n\nNext');
   assert.equal(articleText(doc), 'Hello <script>\nworld\n\nNext');

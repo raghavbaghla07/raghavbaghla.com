@@ -18,6 +18,31 @@ const record = (value: unknown): value is Record<string, unknown> => Boolean(val
 const clipped = (value: unknown, limit: number) => typeof value === 'string' ? Array.from(value).slice(0, limit).join('') : '';
 const escape = (text: string) => text.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 
+/** Check the original editor tree before normalization can discard over-limit work. */
+export function validateArticleDocument(doc: unknown): string | null {
+  if (!record(doc) || doc.type !== 'doc') return 'This article document is invalid. Export your work before reopening it.';
+  const pending: { value: unknown; depth: number }[] = [{ value: doc, depth: 0 }];
+  const seen = new WeakSet<object>();
+  let count = 0; let characters = 0;
+  while (pending.length) {
+    const { value, depth } = pending.pop()!;
+    if (!record(value) || seen.has(value)) return 'This article document is invalid. Export your work before reopening it.';
+    seen.add(value);
+    if (++count > MAX_NODES) return 'This article has more than 10,000 document elements. Split it into smaller articles before saving; your current work is preserved.';
+    if (depth > MAX_DEPTH) return 'This article has more than 32 levels of nesting. Reduce nested lists, quotes, or tables before saving; your current work is preserved.';
+    if (typeof value.text === 'string') {
+      for (const _character of value.text) {
+        if (++characters > MAX_TEXT) return 'Keep article text within 100,000 characters before saving; your current work is preserved.';
+      }
+    }
+    if (Array.isArray(value.content)) {
+      if (count + pending.length + value.content.length > MAX_NODES) return 'This article has more than 10,000 document elements. Split it into smaller articles before saving; your current work is preserved.';
+      for (let index = value.content.length - 1; index >= 0; index--) pending.push({ value: value.content[index], depth: depth + 1 });
+    }
+  }
+  return null;
+}
+
 /** Reject protocols and control characters that browsers can reinterpret. */
 export function safeLink(value: string): string | null {
   if (typeof value !== 'string' || value.length > 2048 || /[\u0000-\u0020\u007f]/.test(value)) return null;
