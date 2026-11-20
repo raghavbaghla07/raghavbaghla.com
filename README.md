@@ -4,7 +4,8 @@ The personal website of Raghav Baghla.
 
 Built with Astro, a strict TypeScript configuration, and plain CSS. The opening
 page is static HTML with CSS animation and no browser JavaScript or external fonts.
-Reduced-motion preferences show the complete introduction immediately.
+“Hii” appears once, then disappears before the smaller name introduction appears
+in the same centered position. Reduced-motion preferences show the name immediately.
 
 ## Development
 
