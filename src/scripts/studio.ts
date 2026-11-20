@@ -31,6 +31,10 @@ const autosave = new Autosave(saveSnapshot, error => {
     say(readableError(error), true);
 });
 const editor = createArticleEditor(get('post-body'), markDirty, getImageUrl);
+const actionBar = document.querySelector<HTMLElement>('.workspace-actions')!;
+new ResizeObserver(() => {
+    actionBar.parentElement!.style.setProperty('--actions-height', `${Math.ceil(actionBar.getBoundingClientRect().height)}px`);
+}).observe(actionBar);
 function say(message: string, error = false) { notice.textContent = message; notice.classList.toggle('error', error); notice.setAttribute('role', error ? 'alert' : 'status'); notice.hidden = false; }
 function setBusy(value: boolean) {
     busy = value;
