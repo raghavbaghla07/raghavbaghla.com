@@ -10,6 +10,7 @@ export const prerender = true;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
+    <meta name="referrer" content="no-referrer" />
     <meta name="theme-color" content="#090909" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <title>Your studio · Raghav Baghla</title>
@@ -28,6 +29,7 @@ export const prerender = true;
           <label for="password">Password</label>
           <input id="password" name="password" type="password" autocomplete="current-password" required />
           <button class="primary" type="submit" id="login-button">Sign in</button>
+          <button type="button" id="email-link-button">Email me a sign-in link</button>
           <button class="text-button" type="button" id="reset-button">Forgot password?</button>
         </form> : <p class="setup-notice">Your studio isn’t connected yet. Sign-in will be available once setup is complete.</p>}
         <noscript><p>Enable JavaScript to use your private studio.</p></noscript>

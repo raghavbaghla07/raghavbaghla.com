@@ -1,4 +1,5 @@
 import { createStudioClient } from '../lib/supabase';
+import { requestSignInLink } from '../lib/studio-auth';
 import { validateDraft, validateImageFile, excerpt, readableError } from '../lib/studio-content';
 import type { Draft, DraftInput, PostImage, PublishedPost } from '../lib/studio-content';
 
@@ -161,6 +162,20 @@ async function renderImages() {
 
 async function openDraft(draft?: Draft) {
   if (busy || !await mayLeave()) return;
+  if (draft && client) {
+    const draftId = draft.id;
+    setBusy(true);
+    try {
+      // A second tab may have saved since this list was loaded.
+      await refresh();
+      const latest = drafts.find(item => item.id === draftId);
+      if (!latest) throw new Error('This draft is no longer available. Your current writing is still here.');
+      draft = latest;
+    } catch (error) {
+      say(readableError(error), true);
+      return;
+    } finally { setBusy(false); }
+  }
   currentId = draft?.id ?? crypto.randomUUID();
   revision = draft?.revision ?? 0;
   title.value = draft?.title ?? '';
@@ -313,6 +328,20 @@ get('reset-button')?.addEventListener('click', () => {
     const result = await client!.auth.resetPasswordForEmail(email.value.trim(),{redirectTo:`${location.origin}/studio/?recovery=1`});
     if (result.error) say(readableError(result.error),true);
     else say('If this address has an account, a password reset link is on its way.');
+  })().catch(error => say(readableError(error),true));
+});
+get('email-link-button')?.addEventListener('click', () => {
+  void (async () => {
+    const email = get<HTMLInputElement>('email');
+    if (!email.reportValidity() || !email.value) { email.focus(); return; }
+    const button = get<HTMLButtonElement>('email-link-button');
+    button.disabled = true;
+    try {
+      const result = await requestSignInLink(client!,email.value,location.origin);
+      if (result.error) throw result.error;
+      say('If this address has an account, check your inbox for a sign-in link.');
+    } catch (error) { say(readableError(error),true); }
+    finally { button.disabled = false; }
   })().catch(error => say(readableError(error),true));
 });
 get<HTMLFormElement>('recovery-form').addEventListener('submit', event => {

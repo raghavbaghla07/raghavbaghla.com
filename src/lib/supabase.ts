@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { studioAuthOptions } from './studio-auth';
 
 // Publishable credentials only. Row-level security is the authorization boundary.
 const url = import.meta.env.PUBLIC_SUPABASE_URL || import.meta.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -14,12 +15,6 @@ export function createPublicClient() {
 export function createStudioClient() {
   if (!configured) return null;
   return createClient(url, key, {
-    auth: {
-      flowType: 'pkce',
-      persistSession: true,
-      storage: typeof window === 'undefined' ? undefined : window.sessionStorage,
-      autoRefreshToken: true,
-      detectSessionInUrl: true,
-    },
+    auth: studioAuthOptions(typeof window === 'undefined' ? undefined : window.sessionStorage),
   });
 }
