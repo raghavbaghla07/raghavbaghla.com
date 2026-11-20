@@ -63,9 +63,11 @@ draft previews use owner-signed storage URLs. No service key.
 
 - [x] Implement public routes, empty/error/404 states, image route, setup and backup guidance.
 - [x] Run full suite, production build, type check, browser QA and independent security review.
-- [ ] Deploy to existing Vercel project and verify live configuration; owner email-link handoff pending.
+- [x] Deploy to existing Vercel project and verify live configuration; user confirmed signing in.
 
 ## Progress
 
 - Stack and functionality approved in conversation; working in the existing checkout to preserve the running preview.
 - Supabase migration applied with explicit approval; existing owner provisioned and studio redirect configured. Anonymous live API denies owner access and reveals no drafts. Public signups are disabled.
+- Production deployment a1edac9 succeeded on Vercel. Live home, studio, writing, and status routes return 200; unknown posts/images return 404. Studio reports configured=true and no posts are published. The user confirmed signing in; authenticated editing was exercised against the local PostgreSQL QA fixture, not against production content.
+- The temporary homepage Open studio link appears after the name animation and opens /studio/. Social and contact links are live.
