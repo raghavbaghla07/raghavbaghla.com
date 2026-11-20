@@ -2,11 +2,28 @@
 
 The personal website of Raghav Baghla.
 
-This repository has been cleared for a fresh start. The previous application,
-framework configuration, dependencies, and Supabase setup have been removed.
-Earlier versions remain available in Git history.
+Built with Astro, a strict TypeScript configuration, and plain CSS. The opening
+page is static HTML with CSS animation and no browser JavaScript or external fonts.
+Reduced-motion preferences show the complete introduction immediately.
 
-All future website development belongs in this repository.
+## Development
+
+Use Node.js 24 LTS.
+
+```sh
+npm install
+npm run dev
+```
+
+## Production
+
+```sh
+npm run build
+npm run preview
+```
+
+Deploy the generated `dist/` folder to a static host. The production domain is
+configured in `astro.config.mjs`.
 
 ## Website brief
 
@@ -16,4 +33,4 @@ All future website development belongs in this repository.
 - Support book recommendations and affiliate links.
 - Use a premium black background with white or off-white text.
 
-No new application or hosting configuration has been added yet.
+Only the opening introduction is implemented so far. Hosting is not configured.
