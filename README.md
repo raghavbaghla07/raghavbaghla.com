@@ -33,4 +33,6 @@ configured in `astro.config.mjs`.
 - Support book recommendations and affiliate links.
 - Use a premium black background with white or off-white text.
 
-Only the opening introduction is implemented so far. Hosting is not configured.
+Only the opening introduction is implemented so far. The existing Vercel project
+deploys from `main`; `vercel.json` explicitly selects Astro and the static `dist/`
+output, replacing the previous Next.js build settings.
