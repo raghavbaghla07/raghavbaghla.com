@@ -17,6 +17,7 @@ create table storage.objects(id uuid primary key default gen_random_uuid(),bucke
 alter table storage.objects enable row level security;
 grant select,insert,update,delete on storage.objects to anon,authenticated;`);
 await db.exec(await readFile(new URL('../../supabase/migrations/202611200001_private_editor.sql',import.meta.url),'utf8'));
+await db.exec(await readFile(new URL('../../supabase/migrations/202611200002_article_editor.sql',import.meta.url),'utf8'));
 await db.query('insert into public.rb_studio_owners values($1)',[owner]);
 const objects=new Map<string,{bytes:Buffer;type:string}>();
 const signed=new Map<string,string>();
@@ -55,6 +56,7 @@ createServer((req,res)=>{
         switch(route.split('/').pop()){
           case 'rb_is_owner':return send((await db.query<{value:boolean}>('select public.rb_is_owner() as value')).rows[0].value);
           case 'rb_save_draft':sql='select * from public.rb_save_draft($1,$2,$3,$4,$5)';values=[args.p_id,args.p_title,args.p_body,JSON.stringify(args.p_images),args.p_expected_revision];break;
+          case 'rb_save_article':sql='select * from public.rb_save_article($1,$2,$3,$4,$5,$6)';values=[args.p_id,args.p_title,args.p_body,JSON.stringify(args.p_images),JSON.stringify(args.p_article),args.p_expected_revision];break;
           case 'rb_publish_draft':sql='select * from public.rb_publish_draft($1,$2)';values=[args.p_id,args.p_expected_revision];break;
           case 'rb_unpublish_post':await db.query('select public.rb_unpublish_post($1)',[args.p_id]);return send(null);
           default:return send({message:'Unknown RPC'},404);
