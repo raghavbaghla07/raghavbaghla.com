@@ -24,3 +24,4 @@
 .article-content td, .article-content th { border: 1px solid #41463b; padding: .7em .85em; vertical-align: top; min-width: 1em; }
 .article-content th { background: #242820; font-weight: 600; text-align: left; }.article-content td > p, .article-content th > p { margin: 0; }
 @media (max-width: 600px) { .article-content blockquote { padding-left: .9em; }.article-content td, .article-content th { padding: .45em; }.article-content pre { padding: 1em; } }
+.article-summary{color:#babeb1;font-size:1.15rem;line-height:1.8;margin:24px 0 36px}.article-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:40px}.article-tags span{font-size:12px;background:#252b20;color:#cbd8bb;border:1px solid #3c4732;border-radius:999px;padding:6px 12px}

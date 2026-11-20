@@ -3,6 +3,7 @@ import WritingLayout from '../../layouts/WritingLayout.astro';
 import { createPublicClient } from '../../lib/supabase';
 import { excerpt } from '../../lib/studio-content';
 import type { PublishedPost } from '../../lib/studio-content';
+import { normalizeArticle,articleStats } from '../../lib/article';
 const client = createPublicClient();
 let posts: PublishedPost[] = [];
 let unavailable = false;
@@ -24,7 +25,8 @@ Astro.response.headers.set('Cache-Control','no-store');
     {unavailable ? <p class="muted">Writing will be here soon. Come back in a little while.</p> : !posts.length ? <p class="muted">The first thought is still taking shape. Check back soon.</p> : posts.map(post => <article class="post-card">
       <time datetime={post.published_at}>{new Date(post.published_at).toLocaleDateString('en-IN', {day:'numeric',month:'long',year:'numeric',timeZone:'Asia/Kolkata'})}</time>
       <h2><a href={`/writing/${encodeURIComponent(post.slug)}/`}>{post.title}</a></h2>
-      <p class="muted">{excerpt(post.body)}</p>
+      <p class="muted">{normalizeArticle(post.article,post.body,post.images).summary || excerpt(post.body)}</p>
+      <span class="muted">{Math.max(1,articleStats(post.body).minutes)} min read</span>
     </article>)}
   </div>
 </WritingLayout>

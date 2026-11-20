@@ -3,6 +3,7 @@ import WritingLayout from '../../layouts/WritingLayout.astro';
 import { createPublicClient } from '../../lib/supabase';
 import { excerpt } from '../../lib/studio-content';
 import type { PublishedPost } from '../../lib/studio-content';
+import { normalizeArticle, renderArticle, articleStats } from '../../lib/article';
 const client = createPublicClient();
 let post: PublishedPost | null = null;
 let unavailable = !client;
@@ -15,13 +16,17 @@ if (client) {
 }
 Astro.response.status = unavailable ? 503 : post ? 200 : 404;
 Astro.response.headers.set('Cache-Control','no-store');
+const article = post ? normalizeArticle(post.article,post.body,post.images) : null;
 ---
-<WritingLayout title={post ? `${post.title} · Raghav Baghla` : 'Writing · Raghav Baghla'} description={post ? excerpt(post.body) : undefined}>
+<WritingLayout title={post ? `${post.title} · Raghav Baghla` : 'Writing · Raghav Baghla'} description={post ? article?.summary || excerpt(post.body) : undefined}>
   {post ? <article>
-    <p class="eyebrow">Raghav Baghla · <time datetime={post.published_at}>{new Date(post.published_at).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric',timeZone:'Asia/Kolkata'})}</time></p>
+    <p class="eyebrow">Raghav Baghla · <time datetime={post.published_at}>{new Date(post.published_at).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric',timeZone:'Asia/Kolkata'})}</time> · {Math.max(1,articleStats(post.body).minutes)} min read</p>
     <h1>{post.title}</h1>
-    <div class="post-body">{post.body}</div>
-    {!!post.images.length && <div class="post-images">{post.images.map(image => <figure><img src={`/media/${image.path}`} alt={image.alt} loading="lazy" /></figure>)}</div>}
+    {article?.summary && <p class="article-summary">{article.summary}</p>}
+    {article?.cover && <div class="post-images"><img src={`/media/${article.cover}`} alt={post.images.find(image=>image.path===article.cover)?.alt || ''} /></div>}
+    <div class="article-content" set:html={renderArticle(article!,post.images,path=>`/media/${path}`)} />
+    {!post.article && !!post.images.length && <div class="post-images">{post.images.map(image => <figure><img src={`/media/${image.path}`} alt={image.alt} loading="lazy" /></figure>)}</div>}
+    {!!article?.tags.length && <p class="article-tags">{article.tags.map(tag=><span>{tag}</span>)}</p>}
   </article> : <><h1>{unavailable ? 'Back in a little while.' : 'This thought isn’t here.'}</h1><p class="muted">{unavailable ? 'Writing is temporarily unavailable. Please try again shortly.' : 'This post may have been unpublished, or the link may be incorrect.'}</p></>}
   <p style="margin-top:48px"><a href="/writing/">All writing</a></p>
 </WritingLayout>
