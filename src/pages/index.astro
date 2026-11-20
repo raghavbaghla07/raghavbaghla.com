@@ -1,5 +1,6 @@
 ---
 import '@fontsource/montserrat/latin-400.css';
+import ContactFooter from '../components/ContactFooter.astro';
 export const prerender = true;
 ---
 
@@ -19,9 +20,19 @@ export const prerender = true;
       <div class="introduction">
         <p class="greeting" aria-hidden="true">Hii</p>
         <h1><span class="lead">I am </span><span class="name">Raghav Baghla<span class="period" aria-hidden="true">.</span></span></h1>
+        <a class="studio-link" href="/studio/">Open studio <span aria-hidden="true">↗</span></a>
       </div>
     </main>
-    <footer><a href="/writing/">Writing</a></footer>
+    <nav class="writing-link" aria-label="Writing"><a id="writing-link" href="/writing/" hidden>Writing</a></nav>
+    <ContactFooter />
+    <script>
+      window.setTimeout(() => {
+        void fetch('/api/writing-status').then(response => response.ok ? response.json() : null).then(data => {
+          const link = document.getElementById('writing-link');
+          if (link && data?.hasPosts === true) link.hidden = false;
+        }).catch(() => {});
+      }, 2700);
+    </script>
   </body>
 </html>
 
@@ -45,6 +56,7 @@ export const prerender = true;
     padding: clamp(1.5rem, 7vw, 8rem);
   }
   .introduction {
+    position: relative;
     display: grid;
     place-items: center;
     width: 100%;
@@ -71,8 +83,21 @@ export const prerender = true;
     animation: arrive 900ms cubic-bezier(0.2, 0.7, 0.2, 1) 1800ms both;
   }
   .lead { color: #a8a59e; }
-  footer { position:fixed; bottom:28px; left:0; right:0; text-align:center; animation:arrive 900ms ease 2700ms both; }
-  footer a { color:#a8a59e; font-size:14px; text-underline-offset:5px; }
+  .studio-link {
+    position: absolute;
+    top: calc(50% + clamp(4rem, 6vw, 6rem));
+    color: #a8a59e;
+    font-size: 0.875rem;
+    text-decoration: none;
+    padding: 0.75rem 1rem;
+    border: 1px solid #393835;
+    border-radius: 999px;
+    animation: arrive 700ms ease 2700ms both;
+  }
+  .studio-link:hover { color: #f2f0eb; border-color: #a8a59e; }
+  .studio-link:focus-visible { outline: 2px solid #f2f0eb; outline-offset: 5px; }
+  .writing-link { margin-top:-60px; height:60px; text-align:center; animation:arrive 900ms ease 2700ms both; }
+  .writing-link a { color:#a8a59e; font-size:14px; text-underline-offset:5px; }
   @keyframes greeting {
     0% { opacity: 0; visibility: visible; }
     25%, 70% { opacity: 1; visibility: visible; }

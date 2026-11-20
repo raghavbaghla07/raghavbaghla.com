@@ -1,5 +1,6 @@
 ---
 import '@fontsource/montserrat/latin-400.css';
+import ContactFooter from '../components/ContactFooter.astro';
 const { title = 'Writing · Raghav Baghla', description = 'Thoughts, learnings, and notes by Raghav Baghla.' } = Astro.props;
 ---
 <!doctype html>
@@ -17,7 +18,7 @@ const { title = 'Writing · Raghav Baghla', description = 'Thoughts, learnings, 
     <a class="skip" href="#main">Skip to content</a>
     <header><a href="/">Raghav Baghla.</a><a href="/writing/">Writing</a></header>
     <main id="main"><slot /></main>
-    <footer>A place for thoughts that stay.</footer>
+    <ContactFooter />
   </body>
 </html>
 <style is:global>
@@ -39,7 +40,6 @@ const { title = 'Writing · Raghav Baghla', description = 'Thoughts, learnings, 
   .post-images img { width:100%; height:auto; display:block; border-radius:8px; }
   .post-images figure { margin:0; }
   .post-images figcaption { font-size:14px; color:#aaa8a2; margin-top:10px; line-height:1.6; }
-  footer { max-width:1080px; margin:auto; padding:24px; font-size:14px; color:#aaa8a2; border-top:1px solid #262626; }
   .skip { position:absolute; top:0; left:12px; padding:12px; background:#252525; transform:translateY(-200%); }
   .skip:focus { transform:translateY(0); }
 </style>
