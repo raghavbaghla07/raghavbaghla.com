@@ -1,0 +1,27 @@
+---
+import WritingLayout from '../../layouts/WritingLayout.astro';
+import { createPublicClient } from '../../lib/supabase';
+import { excerpt } from '../../lib/studio-content';
+import type { PublishedPost } from '../../lib/studio-content';
+const client = createPublicClient();
+let post: PublishedPost | null = null;
+let unavailable = !client;
+if (client) {
+  try {
+    const result = await client.from('rb_posts').select('*').eq('slug',Astro.params.slug!).maybeSingle();
+    unavailable = Boolean(result.error);
+    post = result.data as PublishedPost | null;
+  } catch { unavailable = true; }
+}
+Astro.response.status = unavailable ? 503 : post ? 200 : 404;
+Astro.response.headers.set('Cache-Control','no-store');
+---
+<WritingLayout title={post ? `${post.title} · Raghav Baghla` : 'Writing · Raghav Baghla'} description={post ? excerpt(post.body) : undefined}>
+  {post ? <article>
+    <p class="eyebrow">Raghav Baghla · <time datetime={post.published_at}>{new Date(post.published_at).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric',timeZone:'Asia/Kolkata'})}</time></p>
+    <h1>{post.title}</h1>
+    <div class="post-body">{post.body}</div>
+    {!!post.images.length && <div class="post-images">{post.images.map(image => <figure><img src={`/media/${image.path}`} alt={image.alt} loading="lazy" /></figure>)}</div>}
+  </article> : <><h1>{unavailable ? 'Back in a little while.' : 'This thought isn’t here.'}</h1><p class="muted">{unavailable ? 'Writing is temporarily unavailable. Please try again shortly.' : 'This post may have been unpublished, or the link may be incorrect.'}</p></>}
+  <p style="margin-top:48px"><a href="/writing/">All writing</a></p>
+</WritingLayout>

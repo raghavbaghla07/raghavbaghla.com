@@ -6,10 +6,20 @@
   "scripts": {
     "dev": "astro dev --host 127.0.0.1",
     "build": "astro build",
-    "preview": "astro preview --host 127.0.0.1"
+    "preview": "astro preview --host 127.0.0.1",
+    "test": "node --test tests/*.test.ts",
+    "check": "astro check"
   },
   "dependencies": {
+    "@astrojs/vercel": "11.0.22",
     "@fontsource/montserrat": "5.3.0",
+    "@supabase/supabase-js": "2.119.2",
     "astro": "7.4.13"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.12",
+    "@electric-sql/pglite": "0.5.17",
+    "@types/node": "24.19.2",
+    "typescript": "6.0.3"
   }
 }

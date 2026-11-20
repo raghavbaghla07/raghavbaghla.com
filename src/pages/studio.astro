@@ -1,0 +1,80 @@
+---
+import '@fontsource/montserrat/latin-400.css';
+import '../styles/studio.css';
+import { configured } from '../lib/supabase';
+export const prerender = true;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#090909" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>Your studio · Raghav Baghla</title>
+  </head>
+  <body>
+    <header class="studio-header"><a href="/">Raghav Baghla.</a><span class="studio-label">Writing studio</span><a href="/writing/">View writing</a></header>
+    <main id="studio-root" data-configured={configured}>
+      <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+      <section id="auth-panel" class="auth-panel" aria-labelledby="auth-title">
+        <p class="eyebrow">A space of your own</p>
+        <h1 id="auth-title">Good thoughts<br />start here.</h1>
+        <p class="secondary">Sign in to write, save private drafts, and share when you’re ready.</p>
+        {configured ? <form id="login-form">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" autocomplete="username" required />
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" required />
+          <button class="primary" type="submit" id="login-button">Sign in</button>
+          <button class="text-button" type="button" id="reset-button">Forgot password?</button>
+        </form> : <p class="setup-notice">Your studio isn’t connected yet. Sign-in will be available once setup is complete.</p>}
+        <noscript><p>Enable JavaScript to use your private studio.</p></noscript>
+      </section>
+
+      <section id="recovery-panel" class="auth-panel" aria-labelledby="recovery-title" hidden>
+        <h1 id="recovery-title">A fresh password.</h1>
+        <form id="recovery-form">
+          <label for="new-password">New password</label>
+          <input id="new-password" type="password" autocomplete="new-password" minlength="12" required />
+          <p class="secondary">Use at least 12 characters.</p>
+          <button type="submit" class="primary">Save password</button>
+        </form>
+      </section>
+
+      <section id="workspace" class="workspace" aria-label="Private writing studio" hidden>
+        <aside class="draft-sidebar">
+          <div class="sidebar-top"><h2>Your writing</h2><button type="button" class="new-button" id="new-draft">New draft</button></div>
+          <p class="secondary small">Saved privately. Published when you decide.</p>
+          <div id="draft-list" class="draft-list" aria-label="Saved drafts"></div>
+          <button type="button" id="sign-out" class="text-button">Sign out</button>
+        </aside>
+
+        <div class="composer-panel">
+          <div class="composer-heading"><div class="identity"><span class="initials" aria-hidden="true">rb.</span><div><p>Raghav Baghla</p><span id="post-status" class="privacy-label">Private draft</span></div></div><span id="save-status" class="secondary small" aria-live="polite">Not saved yet</span></div>
+          <form id="composer-form">
+            <fieldset id="composer-fields">
+              <label for="post-title" class="sr-only">Post title</label>
+              <input id="post-title" class="title-input" placeholder="Give this thought a title" maxlength="160" autocomplete="off" />
+              <label for="post-body" class="sr-only">Post body</label>
+              <textarea id="post-body" class="body-input" placeholder="What’s on your mind?" maxlength="30000" rows="12"></textarea>
+              <div id="image-list" class="image-list" aria-label="Attached images"></div>
+              <div class="writing-tools"><div><label for="image-upload" class="upload-label">Add images</label><input id="image-upload" type="file" accept="image/jpeg,image/png,image/webp" multiple /><span class="secondary small">Up to 4 images · 8 MB each</span></div><span id="character-count" class="secondary small">0 characters</span></div>
+            </fieldset>
+            <div class="composer-actions">
+              <div class="secondary-actions"><button type="button" id="preview-button">Preview</button><button type="button" id="copy-button">Copy text</button></div>
+              <div class="publish-actions"><button type="submit" id="save-button">Save draft</button><button type="button" id="publish-button" class="primary">Publish</button></div>
+            </div>
+          </form>
+          <div class="post-management"><a id="live-post-link" href="/writing/" hidden>View published post</a><button type="button" id="unpublish-button" class="text-button" hidden>Unpublish</button></div>
+          <p class="studio-footnote">Your draft stays private until you publish. Saving edits won’t change a published post.</p>
+        </div>
+      </section>
+
+      <dialog id="preview-dialog" aria-labelledby="preview-title"><div class="dialog-heading"><span>Post preview</span><button id="close-preview" type="button">Close</button></div><article><p class="secondary small">Raghav Baghla</p><h2 id="preview-title"></h2><div id="preview-body" class="preview-body"></div><div id="preview-images" class="preview-images"></div></article></dialog>
+      <dialog id="confirm-dialog" aria-labelledby="confirm-title"><h2 id="confirm-title"></h2><p id="confirm-description"></p><div class="confirm-actions"><button id="confirm-cancel" type="button">Cancel</button><button id="confirm-proceed" type="button" class="primary">Continue</button></div></dialog>
+    </main>
+    <script src="../scripts/studio.ts"></script>
+  </body>
+</html>
