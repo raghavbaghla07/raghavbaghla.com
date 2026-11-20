@@ -14,6 +14,12 @@
     "@astrojs/vercel": "11.0.22",
     "@fontsource/montserrat": "5.3.0",
     "@supabase/supabase-js": "2.119.2",
+    "@tiptap/core": "3.35.0",
+    "@tiptap/extension-highlight": "3.35.0",
+    "@tiptap/extension-placeholder": "3.35.0",
+    "@tiptap/extension-table": "3.35.0",
+    "@tiptap/pm": "3.35.0",
+    "@tiptap/starter-kit": "3.35.0",
     "astro": "7.4.13"
   },
   "devDependencies": {
@@ -21,5 +27,10 @@
     "@electric-sql/pglite": "0.5.17",
     "@types/node": "24.19.2",
     "typescript": "6.0.3"
+  },
+  "overrides": {
+    "@vercel/routing-utils": {
+      "path-to-regexp": "6.3.0"
+    }
   }
 }
