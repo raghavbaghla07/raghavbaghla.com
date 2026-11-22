@@ -103,6 +103,10 @@ Owner membership can only be provisioned through trusted database administration
   post URLs. No drafts, demo posts, or signup pages are published.
 - The Open studio link appears at the bottom of the homepage. Database owner
   membership controls editing and publishing.
+- To enable **Delete article** for saved drafts and published articles, apply
+  `supabase/migrations/202611220002_delete_article.sql` after the reader interaction
+  migration. Deletion removes the draft, public page, likes, and comments. Uploaded
+  images remain in private storage.
 - Published articles use a responsive journal layout and show “Written by Raghav
   Baghla” below the title. Cover images also appear in the writing index.
 

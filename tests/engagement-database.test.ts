@@ -17,12 +17,13 @@ test('visitor interactions keep moderation private, enforce limits, and never gr
       create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);
       create table storage.objects(id uuid primary key default gen_random_uuid(),bucket_id text,name text);
       alter table storage.objects enable row level security;`);
-    for (const file of ['202611200001_private_editor.sql', '202611200002_article_editor.sql', '202611220001_article_engagement.sql']) {
+    for (const file of ['202611200001_private_editor.sql', '202611200002_article_editor.sql', '202611220001_article_engagement.sql', '202611220002_delete_article.sql']) {
       await db.exec(await readFile(new URL(`../supabase/migrations/${file}`, import.meta.url), 'utf8'));
     }
     await db.query('insert into public.rb_studio_owners values ($1)', [owner]);
     await db.query("insert into public.rb_drafts(id,title,body) values ($1,'Sample','Body')", [post]);
     await db.query("insert into public.rb_posts(id,slug,title,body) values ($1,'sample','Sample','Body')", [post]);
+    await db.query("insert into public.rb_drafts(id,title) values ($1,'Another draft')", [other]);
     const role = async (who: string | null) => {
       await db.exec('reset role');
       await db.query("select set_config('request.jwt.claim.sub',$1,false)", [who ?? '']);
@@ -89,7 +90,21 @@ test('visitor interactions keep moderation private, enforce limits, and never gr
     // Unpublishing hides interactions without destroying the article's history.
     assert.equal((await db.query('select * from public.rb_post_likes')).rows.length, 1);
     assert.equal((await db.query('select * from public.rb_comments')).rows.length, 101);
-    await db.query('delete from public.rb_drafts where id=$1', [post]);
+    const remove = (revision = 1, id = post) => db.query('select public.rb_delete_article($1,$2)', [id, revision]);
+    await role(null);
+    await assert.rejects(remove(), /permission/i);
+    await role(other);
+    await assert.rejects(remove(), /owner/i);
+    await role(owner);
+    await remove(1, other);
+    await db.query('select public.rb_publish_draft($1,1)', [post]);
+    await assert.rejects(remove(2), /revision conflict/i);
+    assert.equal((await db.query('select * from public.rb_posts where id=$1', [post])).rows.length, 1);
+    await remove();
+    await role(null);
+    assert.equal(await stats(), undefined);
+    await db.exec('reset role');
+    assert.equal((await db.query('select * from public.rb_drafts')).rows.length, 0);
     assert.equal((await db.query('select * from public.rb_post_likes')).rows.length, 0);
     assert.equal((await db.query('select * from public.rb_comments')).rows.length, 0);
   } finally { await db.close(); }

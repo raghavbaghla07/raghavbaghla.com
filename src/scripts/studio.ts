@@ -75,7 +75,7 @@ function ask(heading: string, description: string, action: string): Promise<bool
     return new Promise(resolve => { const finish = (result: boolean) => { confirmation.close(); get('confirm-cancel').removeEventListener('click', cancel); get('confirm-proceed').removeEventListener('click', proceed); confirmation.removeEventListener('cancel', cancel); resolve(result); }; const cancel = () => finish(false), proceed = () => finish(true); get('confirm-cancel').addEventListener('click', cancel); get('confirm-proceed').addEventListener('click', proceed); confirmation.addEventListener('cancel', cancel); });
 }
 async function mayLeave() { return !dirty || await ask('Leave unsaved changes?', 'These changes have not been saved. Copy or download your article before switching.', 'Discard changes'); }
-function renderPublishedState() { const post = published.find(item => item.id === currentId); get('post-status').textContent = post ? 'Published · edits private' : 'Private draft'; get('publish-button').textContent = post ? 'Update article ↗' : 'Publish ↗'; get('unpublish-button').hidden = !post; const link = get<HTMLAnchorElement>('live-post-link'); link.hidden = !post; link.href = post ? `/writing/${encodeURIComponent(post.slug)}/` : '/writing/'; commentReview.show(post?.id ?? null); }
+function renderPublishedState() { const post = published.find(item => item.id === currentId); get('post-status').textContent = post ? 'Published · edits private' : 'Private draft'; get('publish-button').textContent = post ? 'Update article ↗' : 'Publish ↗'; get('unpublish-button').hidden = !post; get('delete-article').hidden = revision === 0; const link = get<HTMLAnchorElement>('live-post-link'); link.hidden = !post; link.href = post ? `/writing/${encodeURIComponent(post.slug)}/` : '/writing/'; commentReview.show(post?.id ?? null); }
 function renderList() {
     const list = get('draft-list');
     list.replaceChildren();
@@ -224,6 +224,11 @@ async function openDraft(draft?: Draft) {
             setBusy(false);
         }
     }
+    await loadEditor(draft);
+    title.focus();
+}
+
+async function loadEditor(draft?: Draft) {
     autosave.cancel();
     blockedByConflict = false;
     currentId = draft?.id ?? crypto.randomUUID();
@@ -246,7 +251,6 @@ async function openDraft(draft?: Draft) {
     renderPublishedState();
     updateStats();
     await Promise.all([renderImages(), renderCover()]);
-    title.focus();
 }
 async function saveSnapshot() {
     if (!client || !ownerId || workspace.hidden)
@@ -269,6 +273,7 @@ async function saveSnapshot() {
         drafts.unshift(saved);
     else
         drafts[index] = saved;
+    get('delete-article').hidden = false;
     renderList();
 }
 async function save() { if (autosave.paused && !blockedByConflict)
@@ -344,6 +349,31 @@ get('publish-button').addEventListener('click', () => { void run(async () => { i
 get('unpublish-button').addEventListener('click', () => { void run(async () => { if (!await ask('Unpublish this article?', 'It will disappear from your website. Your private saved draft will remain.', 'Unpublish'))
     return; const result = await client!.rpc('rb_unpublish_post', { p_id: currentId }); if (result.error)
     throw result.error; await refresh(); say('Article unpublished. Your saved draft is still private.'); }); });
+get('delete-article').addEventListener('click', async () => {
+    const id = currentId;
+    await run(async () => {
+        const name = title.value.trim() || 'Untitled article';
+        const confirmed = await ask('Delete this article?',
+            `“${name}” will be permanently deleted, including its draft, any public version, likes, and comments. This cannot be undone.`,
+            'Delete permanently');
+        if (!confirmed) return;
+
+        const wasPaused = autosave.paused;
+        if (!wasPaused) autosave.cancel();
+        try { await autosave.flush(); } catch { /* Delete the saved revision only. */ }
+        const result = await client!.rpc('rb_delete_article', { p_id: id, p_expected_revision: revision });
+        if (result.error) {
+            if (dirty && !autosave.paused) autosave.schedule();
+            throw result.error;
+        }
+
+        drafts = drafts.filter(draft => draft.id !== id);
+        published = published.filter(post => post.id !== id);
+        await loadEditor();
+        say('Article deleted.');
+    });
+    if (currentId !== id) title.focus();
+});
 get('preview-button').addEventListener('click', () => {
     void run(async () => {
         const value = input(), article = value.article!;

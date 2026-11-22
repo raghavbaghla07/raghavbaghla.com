@@ -40,3 +40,4 @@ dialog{color:#eeeae3;background:#171715;border:1px solid #515346;border-radius:1
   }
 }
 .comment-review{border-top:1px solid #383b30;margin-top:32px;padding-top:24px}.review-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}.review-heading h2{font-size:1.25rem;font-weight:400;letter-spacing:-.025em}.review-heading button{font-size:.8125rem}.review-comment{padding:20px 0;border-top:1px solid #303329}.review-comment-heading{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:.875rem}.review-comment-heading strong{overflow-wrap:anywhere}.review-comment-heading span{color:#aaa99f;font-size:.75rem}.review-comment-body{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.9375rem;line-height:1.8;color:#d3d4c9}.review-comment-actions{display:flex;gap:10px}.review-comment-actions button{font-size:.8125rem}.focus-mode .comment-review{display:none}
+#delete-article { color: #f2b8a9; }
