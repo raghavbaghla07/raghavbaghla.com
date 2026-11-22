@@ -101,6 +101,43 @@ Owner membership can only be provisioned through trusted database administration
   link/image handling. Saved HTML is never rendered directly.
 - `/writing/` lists up to the latest 100 published posts, with permanent individual
   post URLs. No drafts, demo posts, or signup pages are published.
+- The homepage has no public studio link. Bookmark `/studio/` yourself. Its login
+  shell remains addressable; database owner membership controls editing and publishing.
+- Published articles use a responsive journal layout and show “Written by Raghav
+  Baghla” below the title. Cover images also appear in the writing index.
+
+## Reader interactions
+
+Run `supabase/migrations/202611220001_article_engagement.sql` once after the editor
+migrations, before deploying the reader interaction controls. It adds separate
+`rb_post_likes` and `rb_comments` tables and bounded RPC functions, without changing
+the existing editor permissions or legacy `posts`, `comments`, or `likes` tables.
+
+- Visitors can like/unlike and submit a name and comment without signing in.
+  Likes are unique per browser identifier, stored only after an interaction in
+  `localStorage` as `rb-reader-id`; this is not a verified person count. Blocking or
+  clearing browser storage resets that identity. No visitor identifiers are public.
+- Comments start pending. In the studio, open a published article and use
+  **Article comments** below the editor: **Approve** publishes a comment; **Hide**
+  makes it private again. Reviews load 100 at a time with previous/next controls
+  and prioritize pending comments.
+  Public comments load 20 at a time and render names and bodies as plain text.
+- Comments have 60-character names, 2,000-character bodies, a one-minute cooldown,
+  at most five pending comments and ten submissions per hour per browser identifier.
+  These limits and moderation reduce casual spam, but a determined visitor can
+  rotate identifiers; a challenge service would be needed for stronger bot control.
+- Unpublishing hides likes/comments and blocks new interactions, preserving their
+  history for republishing. Deleting a draft in trusted database administration
+  also deletes its interactions.
+- Sharing includes WhatsApp, Facebook, Telegram, LinkedIn, X, email, Copy link,
+  and the device share menu when supported. Instagram sharing uses Copy link or
+  an available device share target; the website does not post to social accounts.
+  Shared previews include the article title, summary, author, and optional cover.
+- For isolated browser QA, run `node tests/fixtures/supabase.ts`, then
+  `node tests/fixtures/seed-engagement.ts`. Start Astro on port 4323 with process-only
+  `PUBLIC_SUPABASE_URL=http://127.0.0.1:4322` and
+  `PUBLIC_SUPABASE_PUBLISHABLE_KEY=local-test-only`, and run
+  `node tests/fixtures/proxy.ts`. Visit port 4322. Never deploy fixture settings.
 
 ## Verification and backups
 

@@ -8,6 +8,7 @@ import { Autosave } from '../lib/autosave';
 import { createArticleEditor } from './article-editor';
 import { createArticleBackup } from '../lib/article-backup';
 import { resetArticleState } from '../lib/editor-state';
+import { createCommentReview } from './comment-review';
 const client = createStudioClient();
 const get = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 const authPanel = get('auth-panel'), workspace = get('workspace'), title = get<HTMLInputElement>('post-title');
@@ -31,6 +32,7 @@ const autosave = new Autosave(saveSnapshot, error => {
     say(readableError(error), true);
 });
 const editor = createArticleEditor(get('post-body'), markDirty, getImageUrl);
+const commentReview = createCommentReview(client, get('comment-review'));
 const actionBar = document.querySelector<HTMLElement>('.workspace-actions')!;
 new ResizeObserver(() => {
     actionBar.parentElement!.style.setProperty('--actions-height', `${Math.ceil(actionBar.getBoundingClientRect().height)}px`);
@@ -73,7 +75,7 @@ function ask(heading: string, description: string, action: string): Promise<bool
     return new Promise(resolve => { const finish = (result: boolean) => { confirmation.close(); get('confirm-cancel').removeEventListener('click', cancel); get('confirm-proceed').removeEventListener('click', proceed); confirmation.removeEventListener('cancel', cancel); resolve(result); }; const cancel = () => finish(false), proceed = () => finish(true); get('confirm-cancel').addEventListener('click', cancel); get('confirm-proceed').addEventListener('click', proceed); confirmation.addEventListener('cancel', cancel); });
 }
 async function mayLeave() { return !dirty || await ask('Leave unsaved changes?', 'These changes have not been saved. Copy or download your article before switching.', 'Discard changes'); }
-function renderPublishedState() { const post = published.find(item => item.id === currentId); get('post-status').textContent = post ? 'Published · edits private' : 'Private draft'; get('publish-button').textContent = post ? 'Update article ↗' : 'Publish ↗'; get('unpublish-button').hidden = !post; const link = get<HTMLAnchorElement>('live-post-link'); link.hidden = !post; link.href = post ? `/writing/${encodeURIComponent(post.slug)}/` : '/writing/'; }
+function renderPublishedState() { const post = published.find(item => item.id === currentId); get('post-status').textContent = post ? 'Published · edits private' : 'Private draft'; get('publish-button').textContent = post ? 'Update article ↗' : 'Publish ↗'; get('unpublish-button').hidden = !post; const link = get<HTMLAnchorElement>('live-post-link'); link.hidden = !post; link.href = post ? `/writing/${encodeURIComponent(post.slug)}/` : '/writing/'; commentReview.show(post?.id ?? null); }
 function renderList() {
     const list = get('draft-list');
     list.replaceChildren();
@@ -635,6 +637,7 @@ if (client) {
             authPanel.hidden = true;
         }
         if (event === 'SIGNED_OUT') {
+            commentReview.show(null);
             autosave.cancel();
             workspace.hidden = true;
             authPanel.hidden = false;

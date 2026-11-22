@@ -1,0 +1,89 @@
+---
+interface Props { id:string; title:string; slug:string }
+const { id, title, slug } = Astro.props;
+const url = new URL(`/writing/${encodeURIComponent(slug)}/`, Astro.site).href;
+const encodedUrl = encodeURIComponent(url);
+const text = encodeURIComponent(`${title} — Raghav Baghla`);
+const platforms = [
+  ['WhatsApp', `https://wa.me/?text=${encodeURIComponent(`${title}\n${url}`)}`],
+  ['Facebook', `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`],
+  ['Telegram', `https://t.me/share/url?url=${encodedUrl}&text=${text}`],
+  ['LinkedIn', `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`],
+  ['X', `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${text}`],
+  ['Email', `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(`${title}\n${url}`)}`],
+];
+---
+<section class="article-engagement" data-article-engagement data-post-id={id} data-share-url={url} data-share-title={title} aria-label="Join the conversation">
+  <div class="engagement-actions">
+    <button type="button" class="like-button" data-like aria-pressed="false" disabled><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z" /></svg><span data-like-label>Like this article</span><span data-like-count></span></button>
+    <a class="comment-jump" href="#article-comments">Leave a comment</a>
+    <details class="share-menu"><summary>Share article</summary><div class="share-options"><p>Pass a thought along.</p><div class="share-platforms">{platforms.map(([name,href]) => <a href={href} target={name === 'Email' ? undefined : '_blank'} rel="noopener noreferrer">{name}</a>)}</div><div class="share-utilities"><button type="button" data-copy-link>Copy link</button><button type="button" data-native-share hidden>More apps</button></div><p class="share-help">For Instagram, copy the link or use More apps when available on your device.</p></div></details>
+  </div>
+  <p class="interaction-status" data-engagement-status role="status" aria-live="polite"></p>
+  <section id="article-comments" class="article-comments" aria-labelledby="comments-heading">
+    <div class="comments-heading"><h2 id="comments-heading">A little conversation.</h2><span data-comment-count></span></div>
+    <p class="comments-intro">Have a thought to add? I’d love to hear it.</p>
+    <div data-comment-list aria-live="polite"><p class="comments-state">Loading comments…</p></div>
+    <button type="button" data-more-comments hidden>Load more comments</button>
+    <form data-comment-form>
+      <div class="comment-field"><label for="comment-name">Your name</label><input id="comment-name" name="display_name" autocomplete="nickname" maxlength="60" required placeholder="What should I call you?" /></div>
+      <div class="comment-field"><label for="comment-body">Your comment</label><textarea id="comment-body" name="body" rows="4" maxlength="2000" required placeholder="Share a thought…"></textarea></div>
+      <div class="comment-trap" aria-hidden="true"><label for="comment-website">Leave this field empty</label><input id="comment-website" name="website" tabindex="-1" autocomplete="off" /></div>
+      <p class="comment-note">Your name and comment will be public once I approve them. No account needed.</p>
+      <button class="submit-comment" type="submit" disabled>Send comment</button>
+      <p class="interaction-status" data-comment-status role="status" aria-live="polite"></p>
+    </form>
+  </section>
+  <noscript><p>Enable JavaScript to like articles and join the conversation. You can still use the sharing links above.</p></noscript>
+</section>
+<script src="../scripts/article-engagement.ts"></script>
+<style>
+  .article-engagement { margin-top:40px; border-top:1px solid #302c26; padding-top:28px; }
+  .engagement-actions { display:flex; align-items:center; flex-wrap:wrap; gap:12px 20px; }
+  button, summary, .comment-jump { min-height:44px; font:inherit; font-size:.8125rem; line-height:1.5; }
+  button { border:1px solid #4b4031; border-radius:999px; padding:10px 16px; background:#191611; color:#e7d6bc; cursor:pointer; }
+  button:hover:not(:disabled) { background:#2c241a; border-color:#c3a67e; }
+  button:disabled { opacity:.55; cursor:wait; }
+  .like-button { display:inline-flex; align-items:center; gap:9px; }
+  .like-button svg { fill:none; stroke:currentColor; stroke-width:1.5; }
+  .like-button[aria-pressed=true] { background:#35271d; border-color:#c6a47f; }
+  .like-button[aria-pressed=true] svg { fill:#d4bd9b; }
+  [data-like-count]:empty { display:none; }
+  [data-like-count] { color:#bdb2a0; padding-left:4px; }
+  .comment-jump { display:inline-flex; align-items:center; color:#bdb2a0; text-decoration:none; }
+  .comment-jump:hover { text-decoration:underline; }
+  .share-menu { margin-left:auto; position:relative; }
+  summary { display:flex; align-items:center; padding:8px 0; cursor:pointer; color:#d4bd9b; text-decoration:underline; text-underline-offset:5px; list-style:none; }
+  summary::-webkit-details-marker { display:none; }
+  .share-options { position:absolute; right:0; top:100%; z-index:5; width:min(320px,calc(100vw - 40px)); padding:20px; background:#191611; border:1px solid #4b4031; border-radius:12px; box-shadow:0 18px 48px #0009; }
+  .share-options p { margin:0 0 12px; color:#d6c7b1; font-size:.875rem; line-height:1.6; }
+  .share-platforms { display:grid; grid-template-columns:1fr 1fr; gap:4px 16px; }
+  .share-platforms a { display:flex; align-items:center; min-height:44px; font-size:.875rem; color:#dfd5c5; }
+  .share-utilities { display:flex; gap:8px; flex-wrap:wrap; margin-top:16px; padding-top:16px; border-top:1px solid #3c3326; }
+  .share-options .share-help { color:#afa18c; font-size:.75rem; margin:16px 0 0; }
+  .interaction-status { font-size:.8125rem; line-height:1.6; color:#d4bd9b; overflow-wrap:anywhere; }
+  .interaction-status:empty { display:none; }
+  .interaction-status[data-error=true] { color:#f2b8a9; }
+  .article-comments { margin-top:48px; scroll-margin-top:24px; }
+  .comments-heading { display:flex; align-items:center; flex-wrap:wrap; gap:16px; }
+  h2 { font-size:clamp(1.5rem,4vw,2rem); font-weight:400; letter-spacing:-.04em; line-height:1.3; margin:0; }
+  [data-comment-count] { font-size:.8125rem; color:#aaa398; }
+  .comments-intro { color:#aaa398; font-size:.9375rem; margin:12px 0 28px; }
+  [data-comment-list] :global(.reader-comment) { padding:24px 0; border-top:1px solid #302c26; }
+  [data-comment-list] :global(.reader-comment-header) { display:flex; gap:12px; justify-content:space-between; align-items:baseline; font-size:.8125rem; }
+  [data-comment-list] :global(.reader-comment-header strong) { color:#e9dfd0; font-weight:600; overflow-wrap:anywhere; }
+  [data-comment-list] :global(time) { color:#aaa398; font-size:.75rem; flex-shrink:0; }
+  [data-comment-list] :global(.reader-comment-body) { color:#c7bfb3; white-space:pre-wrap; overflow-wrap:anywhere; font-size:.9375rem; line-height:1.8; margin:12px 0 0; }
+  .comments-state { color:#aaa398; font-size:.875rem; padding:20px 0; border-top:1px solid #302c26; }
+  form { position:relative; display:grid; gap:18px; margin-top:28px; padding:24px; border:1px solid #373027; background:#12110f; border-radius:12px; }
+  .comment-field { display:grid; gap:10px; }
+  label { color:#d9cbb7; font-size:.8125rem; }
+  input, textarea { width:100%; min-width:0; box-sizing:border-box; border:1px solid #494033; border-radius:6px; background:#090909; color:#eee6d9; padding:13px 14px; font:inherit; font-size:1rem; line-height:1.6; }
+  textarea { resize:vertical; }
+  input::placeholder, textarea::placeholder { color:#938b7e; }
+  .comment-note { font-size:.8125rem; line-height:1.7; color:#aaa398; margin:0; }
+  .submit-comment { justify-self:start; background:#d4bd9b; color:#1d170f; border-color:#d4bd9b; }
+  .submit-comment:hover:not(:disabled) { background:#ead7b9; }
+  .comment-trap { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); }
+  @media(max-width:480px) { .engagement-actions { gap:8px 14px; } .share-menu { margin-left:0; } .share-options { left:0; right:auto; } form { padding:20px; } }
+</style>
