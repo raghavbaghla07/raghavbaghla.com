@@ -3,8 +3,8 @@
 The personal website of Raghav Baghla.
 
 Built with Astro, TypeScript, Supabase, and plain CSS on the existing Vercel project.
-The opening page is static HTML with CSS animation. A small delayed request reveals
-the Writing link only after a post has been published. Montserrat Regular is
+The opening page is static HTML with CSS animation. A small request loads up to
+three published articles for the homepage reveal. Montserrat Regular is
 self-hosted, with only its Latin subset bundled and no external font requests.
 “Hii” appears once, then disappears before the smaller name introduction appears
 in the same centered position. Reduced-motion preferences show the name immediately.
@@ -101,8 +101,8 @@ Owner membership can only be provisioned through trusted database administration
   link/image handling. Saved HTML is never rendered directly.
 - `/writing/` lists up to the latest 100 published posts, with permanent individual
   post URLs. No drafts, demo posts, or signup pages are published.
-- The homepage has no public studio link. Bookmark `/studio/` yourself. Its login
-  shell remains addressable; database owner membership controls editing and publishing.
+- The Open studio link appears at the bottom of the homepage. Database owner
+  membership controls editing and publishing.
 - Published articles use a responsive journal layout and show “Written by Raghav
   Baghla” below the title. Cover images also appear in the writing index.
 

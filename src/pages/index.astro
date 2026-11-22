@@ -51,9 +51,13 @@ const sphereWords = careers.map((word, index) => {
         </div>
         <div class="intro-ending">
           <p class="career-answer">Figuring <span>it out.</span></p>
-          <nav class="intro-links" aria-label="Quick links">
-            <a class="contact-link" href="#contact">Contact me <span aria-hidden="true">↗</span></a>
-          </nav>
+          <section class="published-work" aria-labelledby="work-title">
+            <div class="work-header">
+              <h2 id="work-title">Published work</h2>
+              <a href="/writing/">All writing</a>
+            </div>
+            <div class="work-grid" id="recent-work"></div>
+          </section>
         </div>
         <div class="career-scene" aria-hidden="true">
           <div class="career-sphere">
@@ -62,15 +66,44 @@ const sphereWords = careers.map((word, index) => {
         </div>
       </div>
     </main>
-    <nav class="writing-link" aria-label="Writing"><a id="writing-link" href="/writing/" hidden>Writing</a></nav>
     <ContactFooter />
+    <div class="studio-link"><a href="/studio/">Open studio</a></div>
     <script>
-      window.setTimeout(() => {
-        void fetch('/api/writing-status').then(response => response.ok ? response.json() : null).then(data => {
-          const link = document.getElementById('writing-link');
-          if (link && data?.hasPosts === true) link.hidden = false;
-        }).catch(() => {});
-      }, 2700);
+      interface WorkPreview { href: string; title: string; summary: string; publishedAt: string }
+
+      const dateFormat = new Intl.DateTimeFormat('en-IN', {
+        day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata',
+      });
+      void fetch('/api/writing-status').then(async response => {
+        if (!response.ok) return;
+        const { posts } = await response.json() as { posts?: WorkPreview[] };
+        if (!posts?.length) return;
+
+        const cards = posts.map((post, index) => {
+          const card = document.createElement('article');
+          card.className = 'work-card';
+          card.style.setProperty('--card-order', String(index));
+
+          const date = document.createElement('time');
+          date.dateTime = post.publishedAt;
+          date.textContent = dateFormat.format(new Date(post.publishedAt));
+
+          const heading = document.createElement('h3');
+          const link = document.createElement('a');
+          link.href = post.href;
+          link.textContent = post.title;
+          heading.append(link);
+          card.append(date, heading);
+
+          if (post.summary) {
+            const summary = document.createElement('p');
+            summary.textContent = post.summary;
+            card.append(summary);
+          }
+          return card;
+        });
+        document.getElementById('recent-work')?.replaceChildren(...cards);
+      }).catch(() => { /* The archive link is available if the preview request fails. */ });
     </script>
   </body>
 </html>
@@ -199,31 +232,67 @@ const sphereWords = careers.map((word, index) => {
     text-wrap: balance;
   }
   .career-answer span { color: #e4ddd1; white-space: nowrap; }
-  .intro-links {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    width: 100%;
-    animation: arrive 600ms ease calc(var(--ending-start) + 400ms) both;
+  .published-work {
+    position: relative;
+    max-width: 52rem;
+    margin: 0 auto;
+    text-align: left;
+    animation: work-reveal 750ms cubic-bezier(.2,.7,.2,1) calc(var(--ending-start) + 650ms) both;
   }
-  .intro-links a {
+  .published-work::before {
+    content: '';
+    display: block;
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent-ink), #5b5044 55%, transparent);
+    transform-origin: left;
+    animation: rule-reveal 900ms cubic-bezier(.2,.7,.2,1) calc(var(--ending-start) + 650ms) both;
+  }
+  .work-header {
+    display: flex;
+    min-height: 44px;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0 1rem;
+    margin-block: .5rem;
+  }
+  .work-header h2 { margin: 0; color: var(--accent-ink); font-size: .8rem; font-weight: 400; letter-spacing: .12em; text-transform: uppercase; }
+  .work-header a, .studio-link a {
     display: inline-flex;
     align-items: center;
-    gap: .5rem;
     min-height: 44px;
     color: #c6beb2;
     font-size: .875rem;
-    text-decoration: none;
-    padding: .65rem 1.15rem;
-    border: 1px solid #5b5044;
-    border-radius: 999px;
+    text-underline-offset: .25em;
   }
-  .intro-links .contact-link { background: var(--paper-ink); color: #17130f; border-color: var(--paper-ink); }
-  .intro-links a:hover { border-color: var(--accent-ink); text-decoration: underline; text-underline-offset: 4px; }
-  .intro-links a:focus-visible { outline: 2px solid #f2f0eb; outline-offset: 5px; }
-  .writing-link { margin-top:-60px; height:60px; text-align:center; animation:arrive 600ms ease calc(var(--ending-start) + 400ms) both; }
-  .writing-link a { color:#a8a59e; font-size:14px; text-underline-offset:5px; }
+  .work-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: .75rem; }
+  .work-card {
+    position: relative;
+    min-width: 0;
+    padding: 1rem 1.15rem;
+    border: 1px solid #514639;
+    border-radius: .65rem;
+    background: #191612;
+    overflow-wrap: anywhere;
+    animation: work-reveal 650ms cubic-bezier(.2,.7,.2,1) both;
+    animation-delay: calc(var(--ending-start) + 890ms + var(--card-order) * 110ms);
+  }
+  .work-card time { color: #b5a898; font-size: .8125rem; }
+  .work-card h3 { margin: .35rem 0 0; font-size: clamp(1.125rem, 2.2vw, 1.5rem); font-weight: 400; color: var(--paper-ink); }
+  .work-card h3 a { color: inherit; text-decoration: none; }
+  .work-card h3 a::after { position: absolute; inset: 0; content: ''; border-radius: .65rem; }
+  .work-card h3 a:hover { text-decoration: underline; text-underline-offset: .2em; }
+  .work-card p { margin: .35rem 0 0; color: #bcb3a7; font-size: .9rem; line-height: 1.55; }
+  .studio-link { width: calc(100% - clamp(3rem, 12vw, 10rem)); max-width: 68rem; margin: 0 auto; border-top: 1px solid #34302a; padding: .75rem 0 1.5rem; }
+  .work-header a:focus-visible, .work-card a:focus-visible, .studio-link a:focus-visible { outline: 2px solid var(--paper-ink); outline-offset: 4px; }
+  @keyframes work-reveal {
+    from { opacity: 0; visibility: hidden; transform: translateY(1rem); }
+    to { opacity: 1; visibility: visible; transform: translateY(0); }
+  }
+  @keyframes rule-reveal {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
   @keyframes greeting {
     0% { opacity: 0; visibility: visible; }
     25%, 70% { opacity: 1; visibility: visible; }
