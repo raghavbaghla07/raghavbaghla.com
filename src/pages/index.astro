@@ -111,6 +111,7 @@ const sphereWords = careers.map((word, index) => {
 <style is:global>
   :root {
     --ending-start: 6260ms;
+    --work-start: calc(var(--ending-start) + 1600ms);
     --accent-ink: #d4bd9b;
     --paper-ink: #f1ede5;
     color-scheme: dark;
@@ -221,23 +222,27 @@ const sphereWords = careers.map((word, index) => {
   }
   .intro-ending {
     width: 100%;
-    animation: arrive 650ms cubic-bezier(0.2, 0.7, 0.2, 1) var(--ending-start) both;
+    display: grid;
+    align-items: center;
   }
+  .intro-ending > * { grid-area: 1 / 1; }
   .career-answer {
-    margin: 0 auto clamp(1.75rem, 4.5vw, 3rem);
+    margin: 0 auto;
     color: var(--paper-ink);
     font-size: clamp(2.6rem, 6.6vw, 6.25rem);
     line-height: 1.02;
     letter-spacing: -.055em;
     text-wrap: balance;
+    animation: answer-reveal 1600ms ease var(--ending-start) both;
   }
   .career-answer span { color: #e4ddd1; white-space: nowrap; }
   .published-work {
     position: relative;
     max-width: 52rem;
+    width: 100%;
     margin: 0 auto;
     text-align: left;
-    animation: work-reveal 750ms cubic-bezier(.2,.7,.2,1) calc(var(--ending-start) + 650ms) both;
+    animation: work-reveal 750ms cubic-bezier(.2,.7,.2,1) var(--work-start) both;
   }
   .published-work::before {
     content: '';
@@ -245,7 +250,7 @@ const sphereWords = careers.map((word, index) => {
     height: 1px;
     background: linear-gradient(90deg, var(--accent-ink), #5b5044 55%, transparent);
     transform-origin: left;
-    animation: rule-reveal 900ms cubic-bezier(.2,.7,.2,1) calc(var(--ending-start) + 650ms) both;
+    animation: rule-reveal 900ms cubic-bezier(.2,.7,.2,1) var(--work-start) both;
   }
   .work-header {
     display: flex;
@@ -275,7 +280,7 @@ const sphereWords = careers.map((word, index) => {
     background: #191612;
     overflow-wrap: anywhere;
     animation: work-reveal 650ms cubic-bezier(.2,.7,.2,1) both;
-    animation-delay: calc(var(--ending-start) + 890ms + var(--card-order) * 110ms);
+    animation-delay: calc(var(--work-start) + 240ms + var(--card-order) * 110ms);
   }
   .work-card time { color: #b5a898; font-size: .8125rem; }
   .work-card h3 { margin: .35rem 0 0; font-size: clamp(1.125rem, 2.2vw, 1.5rem); font-weight: 400; color: var(--paper-ink); }
@@ -288,6 +293,11 @@ const sphereWords = careers.map((word, index) => {
   @keyframes work-reveal {
     from { opacity: 0; visibility: hidden; transform: translateY(1rem); }
     to { opacity: 1; visibility: visible; transform: translateY(0); }
+  }
+  @keyframes answer-reveal {
+    0% { opacity: 0; visibility: hidden; transform: translateY(.5rem); }
+    32%, 73% { opacity: 1; visibility: visible; transform: translateY(0); }
+    100% { opacity: 0; visibility: hidden; transform: translateY(-.5rem); }
   }
   @keyframes rule-reveal {
     from { transform: scaleX(0); }
@@ -316,7 +326,7 @@ const sphereWords = careers.map((word, index) => {
   }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; }
-    .greeting, .career-scene { display: none; }
+    .greeting, .career-scene, .career-answer { display: none; }
     .intro-content { position: absolute; opacity: 0; }
   }
   @media (forced-colors: active) {
