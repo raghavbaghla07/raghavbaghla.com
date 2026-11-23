@@ -1,0 +1,26 @@
+<section id="analytics-panel" hidden aria-labelledby="analytics-title">
+  <header><h2 id="analytics-title">Readership</h2><label>Reporting period
+    <select id="analytics-period"><option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="90">Last 90 days</option></select>
+  </label><button id="analytics-refresh" type="button">Refresh</button></header>
+  <p role="status" id="analytics-status"></p>
+  <div id="analytics-results"></div>
+</section>
+<style is:global>
+  #analytics-panel {padding:1rem 0;min-width:0}
+  #analytics-panel header,.studio-views {display:flex;align-items:center;flex-wrap:wrap;gap:.75rem}
+  .studio-views {margin-bottom:1rem}
+  .studio-views button[aria-pressed=true] {background:#dfc9a6;color:#1c1813}
+  #analytics-panel h2 {font:400 2.3rem Georgia,serif;margin:.25rem auto .25rem 0}
+  #analytics-panel label {display:grid;gap:.3rem;font-size:.875rem}
+  .metric-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.75rem}
+  .metric-grid div {padding:1rem;border:1px solid #433c31;border-radius:6px}
+  .metric-grid strong {display:block;font-size:1.8rem;color:#e4ccab}
+  #analytics-results details {margin-top:1.5rem}
+  #analytics-results summary {cursor:pointer;padding:.6rem 0;color:#e4ccab}
+  .traffic-day {display:grid;grid-template-columns:auto minmax(2rem,1fr) auto;align-items:center;gap:.75rem;font-size:.875rem;padding:.3rem 0}
+  .traffic-day meter {width:100%}
+  .report-table {overflow:auto}
+  .report-table table {width:100%;border-collapse:collapse}
+  .report-table th,.report-table td {padding:.75rem;text-align:left;border-bottom:1px solid #39352e;overflow-wrap:anywhere;min-width:6rem}
+  #analytics-results h3 {margin:2rem 0 .65rem}
+</style>

@@ -9,7 +9,9 @@ import { createArticleEditor } from './article-editor';
 import { createArticleBackup } from '../lib/article-backup';
 import { resetArticleState } from '../lib/editor-state';
 import { createCommentReview } from './comment-review';
+import { setupAnalytics } from './studio-analytics';
 const client = createStudioClient();
+const closeAnalytics = setupAnalytics(client);
 const get = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 const authPanel = get('auth-panel'), workspace = get('workspace'), title = get<HTMLInputElement>('post-title');
 const fields = get<HTMLFieldSetElement>('composer-fields'), notice = get('notice'), saveStatus = get('save-status');
@@ -307,8 +309,10 @@ async function restoreSession() { if (!client)
 function updateToolbar() {
     for (const button of document.querySelectorAll<HTMLButtonElement>('[data-command]')) {
         const command = button.dataset.command!;
-        if (['bold', 'italic', 'underline', 'strike', 'highlight', 'code', 'bulletList', 'orderedList', 'blockquote', 'codeBlock', 'link'].includes(command))
+        if (['superscript', 'subscript', 'bold', 'italic', 'underline', 'strike', 'highlight', 'code', 'bulletList', 'orderedList', 'blockquote', 'codeBlock', 'link'].includes(command))
             button.setAttribute('aria-pressed', String(editor.isActive(command)));
+        if (command === 'heading2' || command === 'heading3')
+            button.setAttribute('aria-pressed', String(editor.isActive('heading', { level: command === 'heading2' ? 2 : 3 })));
         if (!busy) {
             if (command === 'undo')
                 button.disabled = !editor.can().undo();
@@ -439,6 +443,14 @@ for (const button of document.querySelectorAll<HTMLButtonElement>('[data-command
             return;
         }
         switch (command) {
+            case 'heading2':
+            case 'heading3':
+                chain.toggleHeading({ level: command === 'heading2' ? 2 : 3 }).run();
+                break;
+            case 'superscript':
+            case 'subscript':
+                chain.toggleMark(command).run();
+                break;
             case 'bold':
                 chain.toggleBold().run();
                 break;
@@ -667,6 +679,7 @@ if (client) {
             authPanel.hidden = true;
         }
         if (event === 'SIGNED_OUT') {
+            closeAnalytics();
             commentReview.show(null);
             autosave.cancel();
             workspace.hidden = true;

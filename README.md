@@ -172,3 +172,11 @@ Monitor your provider's storage/traffic limits and account recovery settings.
 The public footer includes the supplied LinkedIn, Instagram, YouTube, and contact
 email links. The editor remains unavailable until Supabase is connected; no demo
 login or client-side authorization bypass is provided.
+
+## The Afterthoughts and Studio analytics
+
+Apply `supabase/migrations/202611230001_readership.sql` after the existing migrations, then deploy the Astro app using its existing Vercel configuration. The migration uses the existing Studio owner allowlist and public Supabase credentials.
+
+All published posts belong to The Afterthoughts. The archive and articles offer personal RSS subscriptions. Readers paste their feed address into an RSS app and can enable notifications there. The public feed at `/feed.xml` also supports RSS autodiscovery. Studio counts personal feeds requested during the past 30 days. Public feed readership cannot be counted individually.
+
+Studio → Analytics reports 7-, 30-, and 90-day activity beginning when measurement is deployed. Views count public page loads. A random browser-local identifier estimates unique visitors. Active time pauses when the tab loses focus or after a minute without interaction. A good read reaches 90% of the article and records at least 30 active seconds. Link reports record the destination supplied in the article. Referrers are recorded by hostname. Global Privacy Control and Do Not Track disable browser analytics.

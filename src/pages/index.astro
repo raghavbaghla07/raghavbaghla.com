@@ -1,4 +1,5 @@
 ---
+import '@fontsource/montserrat/latin-400.css';
 import ContactFooter from '../components/ContactFooter.astro';
 export const prerender = true;
 
@@ -35,9 +36,7 @@ const sphereWords = careers.map((word, index) => {
     <meta name="theme-color" content="#080808" />
     <meta name="description" content="The personal website of Raghav Baghla. A space for ideas, daily learnings, books, and creative work." />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="preconnect" href="https://api.fontshare.com" />
-    <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin />
-    <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@400&amp;display=swap" />
+    <link rel="alternate" type="application/rss+xml" title="The Afterthoughts" href="/feed.xml" />
     <link rel="canonical" href="https://raghavbaghla.com/" />
     <title>Raghav Baghla</title>
   </head>
@@ -53,8 +52,8 @@ const sphereWords = careers.map((word, index) => {
           <p class="career-answer">Figuring <span>it out.</span></p>
           <section class="published-work" aria-labelledby="work-title">
             <div class="work-header">
-              <h2 id="work-title">Published work</h2>
-              <a href="/writing/">All writing</a>
+              <h2 id="work-title">The Afterthoughts</h2>
+              <a href="/writing/">Read &amp; follow</a>
             </div>
             <div class="work-grid" id="recent-work"></div>
           </section>
@@ -66,6 +65,7 @@ const sphereWords = careers.map((word, index) => {
         </div>
       </div>
     </main>
+    <script src="../scripts/readership.ts"></script>
     <ContactFooter />
     <div class="studio-link"><a href="/studio/">Open studio</a></div>
     <script>
@@ -115,7 +115,7 @@ const sphereWords = careers.map((word, index) => {
     --accent-ink: #d4bd9b;
     --paper-ink: #f1ede5;
     color-scheme: dark;
-    font-family: 'Satoshi', system-ui, sans-serif;
+    font-family: 'Montserrat', system-ui, sans-serif;
     background: #080808;
     color: #eaeaea;
     font-synthesis: none;
@@ -150,6 +150,7 @@ const sphereWords = careers.map((word, index) => {
     text-align: center;
   }
   .introduction > * { grid-area: 1 / 1; }
+  .greeting, h1, .career-answer { font-family: Georgia, 'Times New Roman', serif; }
   .greeting {
     margin: 0;
     font-size: clamp(3.5rem, 8vw, 7.25rem);

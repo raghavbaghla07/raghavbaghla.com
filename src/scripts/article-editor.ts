@@ -1,4 +1,4 @@
-import { Editor, Node, mergeAttributes } from '@tiptap/core';
+import { Editor, Mark, Node, mergeAttributes } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import { TableKit } from '@tiptap/extension-table';
 import Highlight from '@tiptap/extension-highlight';
@@ -23,10 +23,18 @@ export function createArticleEditor(element: HTMLElement, changed: () => void, i
             };
         },
     });
+    function scriptMark(name: string, tag: string, excludes: string) {
+        return Mark.create({
+            name, excludes,
+            parseHTML: () => [{ tag }],
+            renderHTML: () => [tag, 0],
+        });
+    }
     return new Editor({
         element,
         extensions: [
             StarterKit.configure({ heading: { levels: [2, 3, 4] }, link: { openOnClick: false, protocols: ['http', 'https', 'mailto'], isAllowedUri: url => safeLink(url) !== null } }),
+            scriptMark('superscript', 'sup', 'subscript'), scriptMark('subscript', 'sub', 'superscript'),
             Highlight, TableKit.configure({ table: { resizable: false } }),
             Placeholder.configure({ placeholder: 'Start your story. Use the toolbar or familiar keyboard shortcuts.' }), ArticleImage,
         ],

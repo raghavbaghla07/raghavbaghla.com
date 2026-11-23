@@ -12,7 +12,7 @@ export type ArticleContent = { version: 1; doc: ArticleNode; summary: string; ta
 const MAX_TEXT = 100_000;
 const MAX_NODES = 10_000;
 const MAX_DEPTH = 32;
-const marks = new Set(['bold', 'italic', 'underline', 'strike', 'highlight', 'code', 'link']);
+const marks = new Set(['superscript', 'subscript', 'bold', 'italic', 'underline', 'strike', 'highlight', 'code', 'link']);
 const blocks = new Set(['paragraph', 'heading', 'bulletList', 'orderedList', 'blockquote', 'codeBlock', 'horizontalRule', 'table', 'articleImage']);
 const record = (value: unknown): value is Record<string, unknown> => Boolean(value && typeof value === 'object' && !Array.isArray(value));
 const clipped = (value: unknown, limit: number) => typeof value === 'string' ? Array.from(value).slice(0, limit).join('') : '';
@@ -149,7 +149,7 @@ export function renderArticle(article: ArticleContent, images: PostImage[], reso
     if (node.type === 'text') {
       let html = escape(node.text ?? '');
       for (const mark of node.marks ?? []) {
-        const tag = ({ bold: 'strong', italic: 'em', underline: 'u', strike: 's', highlight: 'mark', code: 'code' } as Record<string, string>)[mark.type];
+        const tag = ({ superscript: 'sup', subscript: 'sub', bold: 'strong', italic: 'em', underline: 'u', strike: 's', highlight: 'mark', code: 'code' } as Record<string, string>)[mark.type];
         if (tag) html = `<${tag}>${html}</${tag}>`;
         else if (mark.type === 'link') html = `<a href="${escape(String(mark.attrs?.href))}" rel="noopener noreferrer">${html}</a>`;
       }

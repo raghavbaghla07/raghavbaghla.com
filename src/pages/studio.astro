@@ -6,11 +6,13 @@ import '@fontsource/montserrat/latin-700.css';
 import '@fontsource/montserrat/latin-700-italic.css';
 import '../styles/studio.css';
 import '../styles/article.css';
+import StudioAnalytics from '../components/StudioAnalytics.astro';
 import { configured } from '../lib/supabase';
 export const prerender = true;
 const tools = [
+  ['heading2','H2','Section heading'],['heading3','H3','Subheading'],
   ['bold','B','Bold (Ctrl+B)'],['italic','I','Italic (Ctrl+I)'],['underline','U','Underline (Ctrl+U)'],
-  ['strike','S','Strikethrough'],['highlight','▰','Highlight'],['code','<>','Inline code'],
+  ['superscript','x²','Superscript'],['subscript','x₂','Subscript'],['strike','S','Strikethrough'],['highlight','▰','Highlight'],['code','<>','Inline code'],
   ['bulletList','• List','Bullet list'],['orderedList','1. List','Numbered list'],['blockquote','❝','Blockquote'],
   ['codeBlock','{ }','Code block'],['horizontalRule','—','Divider'],['link','↗','Insert or edit link'],['clear','Tx','Clear formatting'],
   ['indent','→','Indent list item'],['outdent','←','Outdent list item'],
@@ -44,6 +46,9 @@ const tools = [
           <div class="sidebar-footer"><span class="privacy-dot"></span> Only you can access this studio.<button type="button" id="sign-out" class="text-button">Sign out</button></div>
         </aside>
         <div class="editor-column">
+          <nav class="studio-views" aria-label="Studio views"><button id="writing-view" aria-pressed="true" aria-controls="editor-pane">Editor</button><button id="analytics-view" aria-pressed="false" aria-controls="analytics-panel">Analytics</button></nav>
+          <StudioAnalytics />
+          <div id="editor-pane">
           <div class="workspace-actions">
             <div class="status-group"><button type="button" id="toggle-sidebar" class="icon-button" aria-label="Toggle article library" aria-expanded="true" aria-controls="draft-sidebar">☰</button><div><span id="post-status" class="status-badge">Private draft</span><span id="save-status" class="save-status" aria-live="polite">Not saved yet</span></div></div>
             <div class="publish-actions"><button type="button" id="focus-button" aria-pressed="false">Focus</button><button type="button" id="preview-button">Preview</button><button type="submit" form="composer-form" id="save-button">Save draft</button><button type="button" id="publish-button" class="primary">Publish ↗</button></div>
@@ -51,7 +56,7 @@ const tools = [
           <form id="composer-form" class="composer-panel">
             <div class="format-toolbar" role="toolbar" aria-label="Article formatting">
               <div class="toolbar-group"><button type="button" data-command="undo" aria-label="Undo (Ctrl+Z)" title="Undo (Ctrl+Z)">↶</button><button type="button" data-command="redo" aria-label="Redo (Ctrl+Shift+Z)" title="Redo (Ctrl+Shift+Z)">↷</button></div>
-              <label class="sr-only" for="block-format">Text style</label><select id="block-format" aria-label="Text style"><option value="paragraph">Paragraph</option><option value="2">Heading 2</option><option value="3">Heading 3</option><option value="4">Heading 4</option></select>
+              <label class="sr-only" for="block-format">Text style</label><select id="block-format" aria-label="Text style"><option value="paragraph">Paragraph</option><option value="2">Section heading (H2)</option><option value="3">Subheading (H3)</option><option value="4">Minor heading (H4)</option></select>
               <div class="toolbar-group marks">{tools.map(([command,label,name]) => <button type="button" data-command={command} aria-label={name} title={name} aria-pressed="false">{label}</button>)}</div>
               <details class="toolbar-menu"><summary>Table ▾</summary><div class="table-options"><button type="button" data-command="insertTable">Insert table</button><button type="button" data-command="addRowAfter">Add row below</button><button type="button" data-command="addColumnAfter">Add column after</button><button type="button" data-command="toggleHeaderRow">Toggle header row</button><button type="button" data-command="deleteRow">Delete row</button><button type="button" data-command="deleteColumn">Delete column</button><button type="button" data-command="deleteTable">Delete table</button></div></details>
               <button type="button" id="toolbar-image" title="Add an image">Image +</button>
@@ -69,6 +74,7 @@ const tools = [
           <div class="post-management"><div><a id="live-post-link" href="/writing/" hidden>View published article ↗</a><button type="button" id="unpublish-button" class="text-button" hidden>Unpublish</button><button type="button" id="delete-article" class="text-button" hidden>Delete article</button></div><div><button type="button" id="copy-button" class="text-button">Copy text</button><button type="button" id="export-button" class="text-button">Download backup</button></div></div>
           <p class="studio-footnote">Autosaved privately. Only Publish or Update makes your changes public.</p>
           <section id="comment-review" class="comment-review" aria-labelledby="review-heading" hidden><div class="review-heading"><h2 id="review-heading">Article comments</h2><button type="button" data-review-refresh>Refresh comments</button></div><p class="secondary small">Approve a comment to show it publicly. Hide removes it from public view and keeps it here for review.</p><p class="secondary small" data-review-status role="status" aria-live="polite"></p><div data-review-list></div><div class="review-comment-actions"><button type="button" data-review-previous disabled>Previous comments</button><button type="button" data-review-next disabled>Next comments</button></div></section>
+          </div>
         </div>
       </section>
       <dialog id="preview-dialog" class="preview-dialog" aria-labelledby="preview-title"><div class="dialog-heading"><span>ARTICLE PREVIEW</span><button id="close-preview" type="button">Close</button></div><article><p class="secondary small" id="preview-byline">Raghav Baghla</p><h2 id="preview-title"></h2><div id="preview-body" class="article-content"></div></article></dialog>

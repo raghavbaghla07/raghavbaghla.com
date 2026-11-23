@@ -17,7 +17,7 @@ test('visitor interactions keep moderation private, enforce limits, and never gr
       create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);
       create table storage.objects(id uuid primary key default gen_random_uuid(),bucket_id text,name text);
       alter table storage.objects enable row level security;`);
-    for (const file of ['202611200001_private_editor.sql', '202611200002_article_editor.sql', '202611220001_article_engagement.sql', '202611220002_delete_article.sql']) {
+    for (const file of ['202611200001_private_editor.sql', '202611200002_article_editor.sql', '202611220001_article_engagement.sql', '202611220002_delete_article.sql', '202611230001_readership.sql']) {
       await db.exec(await readFile(new URL(`../supabase/migrations/${file}`, import.meta.url), 'utf8'));
     }
     await db.query('insert into public.rb_studio_owners values ($1)', [owner]);
@@ -35,6 +35,29 @@ test('visitor interactions keep moderation private, enforce limits, and never gr
     const comments = () => db.query<{id:string;display_name:string;body:string}>('select * from public.rb_list_comments($1,0)', [post]);
     await role(null);
     assert.deepEqual(await stats(), {likes:0,liked:false,comments:0});
+    const visit = (seconds: number, depth: number, target = post) => db.query(
+      "select public.rb_visit($1,$2,'article',$3,$4,$5,'Direct',$6,'https://example.com/story')",
+      [post,visitor,target,seconds,depth,other]);
+    const feed = (action: string) => db.query<{ok:boolean}>('select public.rb_feed($1,$2) as ok',[visitor,action]);
+    const report = async () => (await db.query<{data:{views:number;visitors:number;followers:number;articles:{seconds:number;reads:number}[];links:{clicks:number}[]}}>(
+      'select public.rb_readership(30) as data')).rows[0].data;
+    await assert.rejects(report(), /permission/i);
+    await assert.rejects(db.query('select * from public.rb_visits'), /permission/i);
+    await visit(50,95); await visit(2,10); await visit(80,100,other);
+    await feed('create');
+    await role(owner);
+    assert.equal((await report()).followers,0);
+    await role(null);
+    assert.equal((await feed('read')).rows[0].ok,true);
+    await role(other);
+    await assert.rejects(report(), /owner/i);
+    await role(owner);
+    const measured = await report();
+    assert.equal(measured.views,1); assert.equal(measured.visitors,1);
+    assert.equal(measured.articles[0].reads,1); assert.equal(measured.articles[0].seconds,50);
+    assert.equal(measured.links[0].clicks,1); assert.equal(measured.followers,1);
+    await role(null);
+    await feed('remove'); assert.equal((await feed('read')).rows[0].ok,false);
     await like(true); await like(true);
     assert.deepEqual(await stats(), {likes:1,liked:true,comments:0});
     await like(true, secondVisitor);

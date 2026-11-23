@@ -1,4 +1,5 @@
 ---
+import FollowSeries from "../../components/FollowSeries.astro";
 import WritingLayout from '../../layouts/WritingLayout.astro';
 import { createPublicClient } from '../../lib/supabase';
 import { excerpt } from '../../lib/studio-content';
@@ -17,11 +18,12 @@ if (client) {
 if (unavailable) Astro.response.status = 503;
 Astro.response.headers.set('Cache-Control','no-store');
 ---
-<WritingLayout>
+<WritingLayout title="The Afterthoughts · Raghav Baghla">
   <header class="journal-intro">
     <p class="journal-kicker">The journal</p>
-    <h1>Things I’m<br />thinking about<span>.</span></h1>
+    <h1>The Afterthoughts<span>.</span></h1>
     <p>A place for learnings, book notes, and ideas worth keeping.<br class="desktop-break" /> Written slowly. Shared thoughtfully.</p>
+    <FollowSeries />
   </header>
   <div class="collection-heading"><h2>All writing</h2><span>{!unavailable && posts.length ? `${posts.length}${posts.length === 100 ? '+' : ''} ${posts.length === 1 ? 'article' : 'articles'}` : 'By Raghav Baghla'}</span></div>
   <div class="posts">
@@ -44,7 +46,7 @@ Astro.response.headers.set('Cache-Control','no-store');
   .journal-kicker { margin:0 0 24px; color:#d4bd9b; font-size:.75rem; letter-spacing:.18em; text-transform:uppercase; }
   h1 { margin:0; max-width:18ch; }
   h1 span { color:#d4bd9b; }
-  .journal-intro > p:last-child { margin:28px 0 0; color:#b4ac9f; font-size:1.0625rem; line-height:1.9; }
+  .journal-intro > p:not(.journal-kicker) { margin:28px 0 0; color:#b4ac9f; font-size:1.0625rem; line-height:1.9; }
   .collection-heading { display:flex; justify-content:space-between; align-items:baseline; gap:20px; padding:22px 0; border-top:1px solid #373027; border-bottom:1px solid #292622; }
   .collection-heading h2 { margin:0; font-size:.875rem; font-weight:400; color:#e5d8c6; }
   .collection-heading > span { font-size:.8125rem; color:#aaa398; }

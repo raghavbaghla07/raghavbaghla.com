@@ -1,4 +1,5 @@
 ---
+import FollowSeries from "./FollowSeries.astro";
 import type { PublishedPost } from '../lib/studio-content';
 import ArticleEngagement from './ArticleEngagement.astro';
 import { normalizeArticle, renderArticle, articleStats } from '../lib/article';
@@ -7,10 +8,10 @@ const { post } = Astro.props;
 const article = normalizeArticle(post.article, post.body, post.images);
 const date = new Date(post.published_at).toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric', timeZone:'Asia/Kolkata' });
 ---
-<article class="published-article">
+<article class="published-article" data-read-post={post.id}>
   <header class="article-masthead">
     <a class="journal-back" href="/writing/">All writing</a>
-    <p class="article-kicker">Notes from my corner of the internet</p>
+    <p class="article-kicker">The Afterthoughts</p>
     <h1>{post.title}</h1>
     {article.summary && <p class="article-deck">{article.summary}</p>}
     <div class="article-byline">
@@ -23,6 +24,7 @@ const date = new Date(post.published_at).toLocaleDateString('en-IN', { day:'nume
     <div class="article-content" set:html={renderArticle(article, post.images, path => `/media/${path}`)} />
     {!post.article && !!post.images.length && <div class="post-images">{post.images.map(image => <figure><img src={`/media/${image.path}`} alt={image.alt} loading="lazy" /></figure>)}</div>}
     {!!article.tags.length && <div class="article-topics" aria-label="Article topics">{article.tags.map(tag => <span>{tag}</span>)}</div>}
+    <FollowSeries />
     <ArticleEngagement id={post.id} title={post.title} slug={post.slug} />
     <footer class="article-end"><div><p>Thanks for reading.</p><span>More learnings, books, and ideas worth keeping.</span></div><a href="/writing/">Explore all writing</a></footer>
   </div>

@@ -28,12 +28,14 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href;
     <meta name="twitter:card" content={image ? 'summary_large_image' : 'summary'} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="canonical" href={canonical} />
+    <link rel="alternate" type="application/rss+xml" title="The Afterthoughts" href="/feed.xml" />
     <title>{title}</title>
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>
     <header class="writing-header"><a class="wordmark" href="/">Raghav Baghla<span>.</span></a><nav aria-label="Main navigation"><a href="/writing/" aria-current="page">Writing</a><a href="#contact">Get in touch</a></nav></header>
     <main id="main" class="writing-main"><slot /></main>
+    <script src="../scripts/readership.ts"></script>
     <ContactFooter />
   </body>
 </html>

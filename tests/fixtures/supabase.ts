@@ -19,6 +19,7 @@ grant select,insert,update,delete on storage.objects to anon,authenticated;`);
 await db.exec(await readFile(new URL('../../supabase/migrations/202611200001_private_editor.sql',import.meta.url),'utf8'));
 await db.exec(await readFile(new URL('../../supabase/migrations/202611200002_article_editor.sql',import.meta.url),'utf8'));
 await db.exec(await readFile(new URL('../../supabase/migrations/202611220001_article_engagement.sql',import.meta.url),'utf8'));
+await db.exec(await readFile(new URL('../../supabase/migrations/202611230001_readership.sql',import.meta.url),'utf8'));
 await db.query('insert into public.rb_studio_owners values($1)',[owner]);
 const objects=new Map<string,{bytes:Buffer;type:string}>();
 const signed=new Map<string,string>();
@@ -61,6 +62,9 @@ createServer((req,res)=>{
           case 'rb_list_comments':return send((await db.query('select * from public.rb_list_comments($1,$2)',[args.p_post_id,args.p_offset])).rows);
           case 'rb_review_comments':return send((await db.query('select * from public.rb_review_comments($1,$2)',[args.p_post_id,args.p_offset ?? 0])).rows);
           case 'rb_moderate_comment':await db.query('select public.rb_moderate_comment($1,$2)',[args.p_comment_id,args.p_status]);return send(null);
+          case 'rb_feed':return send((await db.query<{ok:boolean}>('select public.rb_feed($1,$2) as ok',[args.p_token,args.p_action])).rows[0].ok);
+          case 'rb_visit':await db.query('select public.rb_visit($1,$2,$3,$4,$5,$6,$7,$8,$9)',[args.p_id,args.p_visitor,args.p_page,args.p_post,args.p_seconds,args.p_depth,args.p_source,args.p_click,args.p_destination]);return send(null);
+          case 'rb_readership':return send((await db.query<{report:unknown}>('select public.rb_readership($1) as report',[args.p_days])).rows[0].report);
           case 'rb_is_owner':return send((await db.query<{value:boolean}>('select public.rb_is_owner() as value')).rows[0].value);
           case 'rb_save_draft':sql='select * from public.rb_save_draft($1,$2,$3,$4,$5)';values=[args.p_id,args.p_title,args.p_body,JSON.stringify(args.p_images),args.p_expected_revision];break;
           case 'rb_save_article':sql='select * from public.rb_save_article($1,$2,$3,$4,$5,$6)';values=[args.p_id,args.p_title,args.p_body,JSON.stringify(args.p_images),JSON.stringify(args.p_article),args.p_expected_revision];break;
