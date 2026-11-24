@@ -111,6 +111,21 @@ test('only confirmed readers receive the first publication and unsubscribing can
     const recipients = [(await claim())?.email, (await claim())?.email];
     assert.deepEqual(recipients.sort(), ['new@example.com','pending@example.com']);
     assert.equal(await claim(), undefined);
+
+    await db.exec('reset role');
+    await migrate('202611240006_afterthoughts_welcome_email.sql');
+    const followWithWelcome = async (email: string) => (await db.query<{active:boolean;welcome_token:string|null}>(
+      "select * from public.rb_follow_afterthoughts_with_welcome($1,'welcome-test',null,null)", [email])).rows[0];
+    await db.exec('set role anon');
+    await assert.rejects(followWithWelcome('welcome@example.com'), /permission/i);
+    await db.exec('set role service_role');
+    assert.deepEqual(await followWithWelcome('new@example.com'), {active:true,welcome_token:null});
+    const welcome = await followWithWelcome('welcome@example.com');
+    assert.equal(welcome.active, true);
+    assert.ok(welcome.welcome_token);
+    assert.deepEqual(await followWithWelcome('welcome@example.com'), welcome);
+    await db.query('select public.rb_record_welcome_sent($1)',[welcome.welcome_token]);
+    assert.deepEqual(await followWithWelcome('welcome@example.com'), {active:true,welcome_token:null});
   } finally {
     await db.close();
   }
