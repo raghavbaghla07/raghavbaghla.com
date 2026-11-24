@@ -11,7 +11,18 @@ import { resetArticleState } from '../lib/editor-state';
 import { createCommentReview } from './comment-review';
 import { setupAnalytics } from './studio-analytics';
 const client = createStudioClient();
-const closeAnalytics = setupAnalytics(client);
+const closeAnalytics = setupAnalytics(client, async (id) => {
+    const draft = drafts.find(item => item.id === id);
+    if (!draft) { say('This article is unavailable. Refresh Studio to reload the library.', true); return; }
+    if (currentId !== id) {
+        await openDraft(draft);
+        if (currentId !== id) return;
+    }
+    closeAnalytics();
+    if (workspace.classList.contains('focus-mode')) get('focus-button').click();
+    get('comment-review').scrollIntoView({ block:'start' });
+    get('comment-review').querySelector<HTMLButtonElement>('[data-review-refresh]')?.focus({ preventScroll:true });
+});
 const get = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 const authPanel = get('auth-panel'), workspace = get('workspace'), title = get<HTMLInputElement>('post-title');
 const fields = get<HTMLFieldSetElement>('composer-fields'), notice = get('notice'), saveStatus = get('save-status');
@@ -683,6 +694,7 @@ get('sign-out').addEventListener('click', () => {
 if (client) {
     client.auth.onAuthStateChange(event => {
         if (event === 'PASSWORD_RECOVERY') {
+            closeAnalytics();
             recoveryMode = true;
             recovery.hidden = false;
             workspace.hidden = true;
