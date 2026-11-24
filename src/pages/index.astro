@@ -49,6 +49,13 @@ const sphereWords = careers.map((word, index) => {
         </div>
         <div class="intro-ending">
           <p class="career-answer">Figuring <span>it out.</span></p>
+          <section class="published-work" aria-labelledby="work-title">
+            <div class="work-header">
+              <h2 id="work-title">The Afterthoughts</h2>
+              <a href="/writing/">Read &amp; follow</a>
+            </div>
+            <div class="work-grid" id="recent-work"></div>
+          </section>
         </div>
         <div class="career-scene" aria-hidden="true">
           <div class="career-sphere">
@@ -56,13 +63,6 @@ const sphereWords = careers.map((word, index) => {
           </div>
         </div>
       </div>
-      <section class="published-work" aria-labelledby="work-title">
-        <div class="work-header">
-          <h2 id="work-title">The Afterthoughts</h2>
-          <a href="/writing/">Read &amp; follow</a>
-        </div>
-        <div class="work-grid" id="recent-work"></div>
-      </section>
     </main>
     <script src="../scripts/readership.ts"></script>
     <ContactFooter />
@@ -108,7 +108,8 @@ const sphereWords = careers.map((word, index) => {
 
 <style is:global>
   :root {
-    --ending-start: 2200ms;
+    --ending-start: 6260ms;
+    --work-start: calc(var(--ending-start) + 1600ms);
     --accent-ink: #d4bd9b;
     --paper-ink: #f1ede5;
     color-scheme: dark;
@@ -124,10 +125,10 @@ const sphereWords = careers.map((word, index) => {
   ::selection { background: #f2f0eb; color: #090909; }
   main {
     position: relative;
+    min-height: 100svh;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    padding: clamp(1.5rem, 4vw, 3rem) clamp(1.5rem, 7vw, 8rem) clamp(2rem, 5vw, 4rem);
+    padding: clamp(1.5rem, 7vw, 8rem);
     background: radial-gradient(ellipse at 50% 44%, #201b16 0%, #110f0d 36%, transparent 72%);
   }
   main::before {
@@ -138,12 +139,12 @@ const sphereWords = careers.map((word, index) => {
     content: '';
   }
   .introduction {
-    --sphere-start: 1050ms;
+    --sphere-start: 3500ms;
     position: relative;
     display: grid;
     place-items: center;
     width: 100%;
-    min-height: clamp(14rem, 38svh, 19rem);
+    padding-block: 3rem;
     text-align: center;
   }
   .introduction > * { grid-area: 1 / 1; }
@@ -154,7 +155,7 @@ const sphereWords = careers.map((word, index) => {
     font-weight: 400;
     letter-spacing: -.035em;
     line-height: .95;
-    animation: greeting 560ms ease-in-out both;
+    animation: greeting 1800ms ease-in-out both;
   }
   h1 {
     max-width: 24ch;
@@ -163,7 +164,7 @@ const sphereWords = careers.map((word, index) => {
     font-weight: 400;
     letter-spacing: -2.5px;
     line-height: 1.07;
-    animation: arrive 320ms ease-out 500ms both;
+    animation: arrive 900ms cubic-bezier(0.2, 0.7, 0.2, 1) 1800ms both;
   }
   @media (min-width: 1024px) {
     h1 { font-size: clamp(68px, 5.5vw, 76px); }
@@ -182,14 +183,14 @@ const sphereWords = careers.map((word, index) => {
   .intro-content {
     width: 100%;
     min-width: 0;
-    animation: intro-out 200ms ease 1250ms forwards;
+    animation: intro-out 340ms ease 3180ms forwards;
   }
   .career-lead {
     margin: clamp(1rem, 3vw, 2rem) 0 0;
     color: var(--accent-ink);
     font-size: clamp(1.05rem, 2.1vw, 1.55rem);
     line-height: 1.3;
-    animation: arrive 240ms ease 820ms both;
+    animation: arrive 420ms ease 2460ms both;
   }
   .career-scene {
     position: absolute;
@@ -200,14 +201,14 @@ const sphereWords = careers.map((word, index) => {
     pointer-events: none;
   }
   .career-sphere {
-    --radius: clamp(4.6rem, 20vw, 7.25rem);
+    --radius: clamp(5.4rem, 29vw, 12.5rem);
     position: relative;
     width: 0;
     height: 0;
     color: var(--paper-ink);
     font-size: clamp(0.7rem, 2.2vw, 1.2rem);
     transform-style: preserve-3d;
-    animation: sphere-turn 1150ms linear var(--sphere-start) both;
+    animation: sphere-turn 2.65s linear var(--sphere-start) both;
   }
   .career-sphere span {
     --position: translate3d(calc(var(--x) * var(--radius)), calc(var(--y) * var(--radius)), calc(var(--z) * var(--radius)));
@@ -216,7 +217,7 @@ const sphereWords = careers.map((word, index) => {
     inset: 0 auto auto 0;
     white-space: nowrap;
     backface-visibility: hidden;
-    animation: sphere-word 900ms ease-in-out calc(var(--sphere-start) + var(--i) * 5ms) both;
+    animation: sphere-word 2060ms ease-in-out calc(var(--sphere-start) + var(--i) * 12ms) both;
   }
   .intro-ending {
     width: 100%;
@@ -231,7 +232,7 @@ const sphereWords = careers.map((word, index) => {
     line-height: 1.02;
     letter-spacing: -.055em;
     text-wrap: balance;
-    animation: arrive 450ms ease var(--ending-start) both;
+    animation: answer-reveal 1600ms ease var(--ending-start) both;
   }
   .career-answer span { color: #e4ddd1; white-space: nowrap; }
   .published-work {
@@ -240,12 +241,15 @@ const sphereWords = careers.map((word, index) => {
     width: 100%;
     margin: 0 auto;
     text-align: left;
+    animation: work-reveal 750ms cubic-bezier(.2,.7,.2,1) var(--work-start) both;
   }
   .published-work::before {
     content: '';
     display: block;
     height: 1px;
     background: linear-gradient(90deg, var(--accent-ink), #5b5044 55%, transparent);
+    transform-origin: left;
+    animation: rule-reveal 900ms cubic-bezier(.2,.7,.2,1) var(--work-start) both;
   }
   .work-header {
     display: flex;
@@ -283,6 +287,19 @@ const sphereWords = careers.map((word, index) => {
   .work-card p { margin: .35rem 0 0; color: #bcb3a7; font-size: .9rem; line-height: 1.55; }
   .studio-link { width: calc(100% - clamp(3rem, 12vw, 10rem)); max-width: 68rem; margin: 0 auto; border-top: 1px solid #34302a; padding: .75rem 0 1.5rem; }
   .work-header a:focus-visible, .work-card a:focus-visible, .studio-link a:focus-visible { outline: 2px solid var(--paper-ink); outline-offset: 4px; }
+  @keyframes work-reveal {
+    from { opacity: 0; visibility: hidden; transform: translateY(1rem); }
+    to { opacity: 1; visibility: visible; transform: translateY(0); }
+  }
+  @keyframes answer-reveal {
+    0% { opacity: 0; visibility: hidden; transform: translateY(.5rem); }
+    32%, 73% { opacity: 1; visibility: visible; transform: translateY(0); }
+    100% { opacity: 0; visibility: hidden; transform: translateY(-.5rem); }
+  }
+  @keyframes rule-reveal {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
   @keyframes greeting {
     0% { opacity: 0; visibility: visible; }
     25%, 70% { opacity: 1; visibility: visible; }
@@ -307,6 +324,8 @@ const sphereWords = careers.map((word, index) => {
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; }
     .greeting, .career-scene, .career-answer, .career-lead { display: none; }
+    .introduction { gap: 2rem; }
+    .intro-content, .intro-ending { grid-area: auto; }
   }
   @media (forced-colors: active) {
     main::before { border-color: CanvasText; }
