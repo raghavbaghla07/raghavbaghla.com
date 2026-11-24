@@ -37,20 +37,25 @@ const tools = [
         <noscript><p>Enable JavaScript to use your private studio.</p></noscript>
       </section>
       <section id="recovery-panel" class="auth-panel" aria-labelledby="recovery-title" hidden><h1 id="recovery-title">A fresh password.</h1><form id="recovery-form"><label for="new-password">New password</label><input id="new-password" type="password" autocomplete="new-password" minlength="12" required /><p class="secondary">Use at least 12 characters.</p><button type="submit" class="primary">Save password</button></form></section>
-      <section id="workspace" class="workspace" aria-label="Private writing studio" hidden>
+      <section id="workspace" class="workspace" data-view="editor" aria-label="Private writing studio" hidden>
         <aside id="draft-sidebar" class="draft-sidebar">
-          <div class="sidebar-top"><div><p class="eyebrow">LIBRARY</p><h2>Your articles</h2></div><button type="button" id="new-draft" class="new-button" aria-label="New article">+</button></div>
-          <label class="sr-only" for="draft-search">Search articles</label><input id="draft-search" type="search" placeholder="Search your writing…" />
-          <div class="draft-filters" aria-label="Filter articles"><button type="button" data-filter="all" aria-pressed="true">All</button><button type="button" data-filter="draft" aria-pressed="false">Drafts</button><button type="button" data-filter="published" aria-pressed="false">Published</button></div>
-          <div id="draft-list" class="draft-list" aria-label="Saved drafts"></div>
+          <nav class="studio-views" aria-label="Studio views">
+            <button type="button" id="writing-view" aria-pressed="true" aria-controls="editor-pane">Editor</button>
+            <button type="button" id="analytics-view" aria-pressed="false" aria-controls="analytics-panel">Analytics</button>
+          </nav>
+          <section id="article-library" class="article-library" aria-labelledby="library-title">
+            <div class="sidebar-top"><div><p class="eyebrow">LIBRARY</p><h2 id="library-title">Your articles</h2></div><button type="button" id="new-draft" class="new-button" aria-label="New article">+</button></div>
+            <label class="sr-only" for="draft-search">Search articles</label><input id="draft-search" type="search" placeholder="Search your writing…" />
+            <div class="draft-filters" aria-label="Filter articles"><button type="button" data-filter="all" aria-pressed="true">All</button><button type="button" data-filter="draft" aria-pressed="false">Drafts</button><button type="button" data-filter="published" aria-pressed="false">Published</button></div>
+            <div id="draft-list" class="draft-list" aria-label="Saved drafts"></div>
+          </section>
           <div class="sidebar-footer"><span class="privacy-dot"></span> Only you can access this studio.<button type="button" id="sign-out" class="text-button">Sign out</button></div>
         </aside>
         <div class="editor-column">
-          <nav class="studio-views" aria-label="Studio views"><button id="writing-view" aria-pressed="true" aria-controls="editor-pane">Editor</button><button id="analytics-view" aria-pressed="false" aria-controls="analytics-panel">Analytics</button></nav>
           <StudioAnalytics />
           <div id="editor-pane">
           <div class="workspace-actions">
-            <div class="status-group"><button type="button" id="toggle-sidebar" class="icon-button" aria-label="Toggle article library" aria-expanded="true" aria-controls="draft-sidebar">☰</button><div><span id="post-status" class="status-badge">Private draft</span><span id="save-status" class="save-status" aria-live="polite">Not saved yet</span></div></div>
+            <div class="status-group"><button type="button" id="toggle-sidebar" class="icon-button" aria-label="Toggle article library" aria-expanded="true" aria-controls="article-library">☰</button><div><span id="post-status" class="status-badge">Private draft</span><span id="save-status" class="save-status" aria-live="polite">Not saved yet</span></div></div>
             <div class="publish-actions"><button type="button" id="focus-button" aria-pressed="false">Focus</button><button type="button" id="preview-button">Preview</button><button type="submit" form="composer-form" id="save-button">Save draft</button><button type="button" id="publish-button" class="primary">Publish ↗</button></div>
           </div>
           <form id="composer-form" class="composer-panel">
