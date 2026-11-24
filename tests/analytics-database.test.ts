@@ -64,6 +64,15 @@ test('dashboard reports enforce ownership, count distinct browsers, and retain c
     await db.exec("delete from public.rb_email_subscriptions where email='new@example.invalid'");
     assert.equal(Number(await scalar("select public.rb_analytics_report(current_date-29,current_date,'day')#>>'{metrics,current,subscribers}' v")),r.metrics.current.subscribers+1);
     assert.equal(Number(await scalar("select public.rb_live_browsers() v"))>0,true);
+    const privateVisit=crypto.randomUUID();
+    await db.exec('set role service_role');
+    await db.query("select public.rb_measure($1,$2,'article',$3,10,25,'Direct',null,null,null,null,'Mobile','Other',null,null,true,true)",
+      [privateVisit,visitor,post]);
+    const privateToken=await scalar<string>("select public.rb_request_attributed_email('private@example.invalid','fixture',$1,$2) v",[privateVisit,visitor]);
+    assert.equal(await scalar('select public.rb_confirm_private_email($1,true) v',[privateToken]),true);
+    await db.exec('reset role');
+    assert.equal(await scalar('select converted v from public.rb_visits where id=$1',[privateVisit]),false);
+    assert.equal(await scalar('select origin_visit v from public.rb_email_subscriptions where confirmation=$1',[privateToken]),null);
     assert.equal(await scalar("select public.rb_analytics_report(date '2000-01-05',date '2000-01-05','day')#>'{metrics,current,rate}' v"),null);
   } finally { await db.close(); }
 });

@@ -44,4 +44,3 @@ export function linkDestination(value: unknown) {
     return host && ['https:', 'http:'].includes(url.protocol) ? 'https://' + host : null;
   } catch { return null; }
 }
-

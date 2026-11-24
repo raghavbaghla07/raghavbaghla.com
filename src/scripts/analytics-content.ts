@@ -63,7 +63,7 @@ export function articleTable(client:SupabaseClient,range:DateRange) {
       previous.disabled=offset===0; next.disabled=offset+page.rows.length>=page.total;
       if (focusColumn) results.querySelector<HTMLButtonElement>('[data-column="'+focusColumn+'"]')?.focus();
     } catch { if (!disposed && generation===version) {
-      status.textContent='Could not load articles.'; results.append(action('Retry',()=>void load())); 
+      status.textContent='Could not load articles.'; results.append(action('Retry',()=>void load()));
     } } finally { if (!disposed && generation===version) exportButton.disabled=false; }
   }
   search.addEventListener('input',()=>{
