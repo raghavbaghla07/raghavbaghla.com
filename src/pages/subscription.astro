@@ -8,6 +8,7 @@ Astro.response.headers.set('X-Robots-Tag', 'noindex');
 const messages: Record<string, string> = {
   requested: 'Enter your email to start following The Afterthoughts.',
   subscribed: 'You’ll receive an email when a new post is published in The Afterthoughts.',
+  'subscribed-welcome': 'We sent you a welcome email. You’ll also hear from us when a new post is published in The Afterthoughts.',
   confirmed: 'You’ll receive an email when a new post is published in The Afterthoughts.',
   unsubscribed: 'You’re no longer following The Afterthoughts.',
   invalid: 'Enter a valid email address to follow The Afterthoughts.',
@@ -18,7 +19,7 @@ const status = Astro.url.searchParams.get('status') ?? '';
 const action = Astro.url.searchParams.get('action');
 const token = Astro.url.searchParams.get('token');
 const managing = action === 'unsubscribe' && validSubscriptionToken(token);
-const subscribed = status === 'subscribed' || status === 'confirmed';
+const subscribed = status === 'subscribed' || status === 'subscribed-welcome' || status === 'confirmed';
 
 if (Astro.request.method === 'POST') {
   if (Astro.request.headers.get('origin') !== Astro.url.origin || !managing) {

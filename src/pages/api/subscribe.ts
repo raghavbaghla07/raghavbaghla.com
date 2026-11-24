@@ -3,18 +3,18 @@ import type { APIRoute } from 'astro';
 import { optedOut } from '../../lib/readership';
 import { validSubscriptionToken } from '../../lib/email-subscriptions';
 import { createHash } from 'node:crypto';
-import { emailConfigured, privateResponseHeaders, subscriptionClient } from '../../lib/email-subscriptions';
+import { emailConfigured, privateResponseHeaders, sendFollowWelcome, subscriptionClient } from '../../lib/email-subscriptions';
 
 const emailPattern = /^[a-z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)+$/i;
 
-export const POST: APIRoute = async ({ request, url }) => {
+export const POST: APIRoute = async ({ request, url, site }) => {
   const respond = (status: string) => Response.redirect(new URL('/subscription/?status=' + status, url), 303);
   if (request.headers.get('origin') !== url.origin) return new Response(null, { status: 403, headers: privateResponseHeaders });
   if (!request.headers.get('content-type')?.startsWith('application/x-www-form-urlencoded') ||
       Number(request.headers.get('content-length')) > 2048) return respond('invalid');
 
   const client = subscriptionClient();
-  if (!emailConfigured() || !client) return respond('unavailable');
+  if (!emailConfigured() || !client || !site) return respond('unavailable');
   try {
     const fields = await request.formData();
     const topic = fields.get('topic');
@@ -26,10 +26,22 @@ export const POST: APIRoute = async ({ request, url }) => {
     const sender = createHash('sha256').update(getSecret('CRON_SECRET') + ':' + ip).digest('hex');
     const visit = fields.get('visit'), visitor = fields.get('visitor');
     const attribute = !optedOut(request.headers) && validSubscriptionToken(visit) && validSubscriptionToken(visitor);
-    const result = await client.rpc('rb_follow_afterthoughts', { p_email: email, p_sender: sender,
-      p_visit: attribute ? visit : null, p_visitor: attribute ? visitor : null });
-    if (result.error) throw result.error;
-    return respond(result.data === true ? 'subscribed' : 'limited');
+    const { data, error } = await client.rpc('rb_follow_afterthoughts_with_welcome', { p_email: email, p_sender: sender,
+      p_visit: attribute ? visit : null, p_visitor: attribute ? visitor : null })
+      .single<{ active: boolean; welcome_token: string | null }>();
+    if (error) throw error;
+    if (!data.active) return respond('limited');
+    if (data.welcome_token) {
+      try {
+        await sendFollowWelcome(site, email, data.welcome_token);
+        const sent = await client.rpc('rb_record_welcome_sent', { p_token: data.welcome_token });
+        if (sent.error) throw sent.error;
+        return respond('subscribed-welcome');
+      } catch {
+        console.error('Afterthoughts welcome email failed');
+      }
+    }
+    return respond('subscribed');
   } catch {
     console.error('Afterthoughts follow request failed');
     return respond('unavailable');

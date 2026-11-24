@@ -176,11 +176,11 @@ login or client-side authorization bypass is provided.
 
 Apply `supabase/migrations/202611230001_readership.sql` after the existing migrations, then deploy the Astro app using its existing Vercel configuration. The migration uses the existing Studio owner allowlist and public Supabase credentials.
 
-Readers can choose **Follow The Afterthoughts** on the writing archive or a post in that topic. Submitting an email address starts the follow immediately. Followers receive a notification when a new post is published in The Afterthoughts. Each notification includes an unfollow link. Studio shows the total number of active followers.
+Readers can choose **Follow The Afterthoughts** on the writing archive or a post in that topic. Submitting an email address starts the follow immediately and sends a welcome email. Followers receive a notification when a new post is published in The Afterthoughts. The welcome email and every post notification include an unfollow link. Studio shows the total number of active followers.
 
 To enable email delivery:
 
-1. Apply the SQL migrations in filename order through `202611240005_instant_afterthoughts_follow.sql`. Studio publishes to The Afterthoughts, the site's current writing topic.
+1. Apply the SQL migrations in filename order through `202611240006_afterthoughts_welcome_email.sql`. Studio publishes to The Afterthoughts, the site's current writing topic.
 2. Verify your sending domain in [Resend](https://resend.com/docs/dashboard/domains/introduction) and create a sending API key.
 3. Set the production Vercel environment variables SUPABASE_SECRET_KEY, RESEND_API_KEY, NEWSLETTER_FROM (an address on the verified domain), and CRON_SECRET (a long random value). Keep these out of client bundles and Git.
 4. Deploy. Subscribe with an inbox you control and verify that Studio counts it immediately. To verify article delivery before going live, publish a test article in a separate environment with a separate database and mailing list.

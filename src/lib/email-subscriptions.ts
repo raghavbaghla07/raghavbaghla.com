@@ -1,5 +1,6 @@
 import { getSecret } from 'astro:env/server';
 import { createClient } from '@supabase/supabase-js';
+import { createHash } from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
 
 const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL || import.meta.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -33,7 +34,7 @@ function unsubscribeLink(site: URL, token: string) {
   return url.href;
 }
 
-export async function sendEmail(to: string, subject: string, message: string, key: string) {
+async function sendEmail(to: string, subject: string, message: string, key: string) {
   const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
@@ -45,6 +46,15 @@ export async function sendEmail(to: string, subject: string, message: string, ke
     signal: AbortSignal.timeout(5000),
   });
   if (!response.ok) throw new Error('Email provider returned HTTP ' + response.status);
+}
+
+export function sendFollowWelcome(site: URL, email: string, token: string) {
+  const deliveryKey = createHash('sha256').update(token).digest('hex');
+  return sendEmail(email, 'You’re subscribed to The Afterthoughts', [
+    'Thanks for following The Afterthoughts. You’re subscribed and will get an email when a new post is published.',
+    'Read The Afterthoughts: ' + new URL('/writing/', site).href,
+    'Unfollow The Afterthoughts: ' + unsubscribeLink(site, token),
+  ].join('\n\n'), 'follow-welcome/' + deliveryKey);
 }
 
 type Delivery = { id: string; email: string; unsubscribe: string; title: string; slug: string };
