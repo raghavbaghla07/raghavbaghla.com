@@ -1,5 +1,7 @@
 import { getSecret } from 'astro:env/server';
 import type { APIRoute } from 'astro';
+import { optedOut } from '../../lib/readership';
+import { validSubscriptionToken } from '../../lib/email-subscriptions';
 import { createHash } from 'node:crypto';
 import { emailConfigured, privateResponseHeaders, sendEmail, subscriptionClient, subscriptionLink } from '../../lib/email-subscriptions';
 
@@ -20,7 +22,10 @@ export const POST: APIRoute = async ({ request, url, site }) => {
 
     const ip = request.headers.get('x-vercel-forwarded-for') ?? 'local';
     const sender = createHash('sha256').update(getSecret('CRON_SECRET') + ':' + ip).digest('hex');
-    const result = await client.rpc('rb_request_email_subscription', { p_email: email, p_sender: sender });
+    const visit = fields.get('visit'), visitor = fields.get('visitor');
+    const attribute = !optedOut(request.headers) && validSubscriptionToken(visit) && validSubscriptionToken(visitor);
+    const result = await client.rpc('rb_request_attributed_email', { p_email: email, p_sender: sender,
+      p_visit: attribute ? visit : null, p_visitor: attribute ? visitor : null });
     if (result.error) throw result.error;
     if (result.data) {
       const link = subscriptionLink(site, 'confirm', result.data);

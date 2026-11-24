@@ -60,6 +60,8 @@ export async function deliverArticleEmails(site: URL, client: NonNullable<Return
     if (!delivery) break;
 
     const articleUrl = new URL('/writing/' + encodeURIComponent(delivery.slug) + '/', site);
+    articleUrl.searchParams.set('utm_medium', 'newsletter');
+    articleUrl.searchParams.set('utm_campaign', 'afterthoughts');
     const unsubscribeUrl = subscriptionLink(site, 'unsubscribe', delivery.unsubscribe);
     try {
       await sendEmail(

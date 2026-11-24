@@ -1,4 +1,5 @@
 ---
+import { optedOut } from '../lib/readership';
 import WritingLayout from '../layouts/WritingLayout.astro';
 import EmailSubscription from '../components/EmailSubscription.astro';
 import { privateResponseHeaders, subscriptionClient, validSubscriptionToken } from '../lib/email-subscriptions';
@@ -25,7 +26,8 @@ if (Astro.request.method === 'POST') {
   const client = subscriptionClient();
   if (!client) return Astro.redirect('/subscription/?status=unavailable', 303);
   if (action === 'confirm') {
-    const result = await client.rpc('rb_confirm_email_subscription', { p_token: token });
+    const skip = optedOut(Astro.request.headers) || (await Astro.request.formData()).get('privacy') === '1';
+    const result = await client.rpc('rb_confirm_private_email', { p_token: token, p_skip_attribution: skip });
     const outcome = result.error ? 'unavailable' : result.data ? 'confirmed' : 'expired';
     return Astro.redirect('/subscription/?status=' + outcome, 303);
   }
@@ -39,7 +41,7 @@ const title = managing ? action === 'confirm' ? 'Confirm your subscription' : 'U
   <div class="subscription-page">
     <h1>{title}</h1>
     {managing ? (
-      <form method="post">
+      <form method="post" data-confirmation>
         <p>{action === 'confirm' ? 'Confirm to receive new articles from The Afterthoughts by email.' : 'Unsubscribe to stop receiving new articles by email.'}</p>
         <button type="submit">{action === 'confirm' ? 'Confirm subscription' : 'Unsubscribe'}</button>
       </form>
@@ -52,6 +54,12 @@ const title = managing ? action === 'confirm' ? 'Confirm your subscription' : 'U
     <p><a href="/writing/">Back to The Afterthoughts</a></p>
   </div>
 </WritingLayout>
+<script>
+  import { browserOptOut } from '../lib/readership';
+  document.querySelector<HTMLFormElement>('[data-confirmation]')?.addEventListener('formdata', event => {
+    if (browserOptOut(navigator)) event.formData.set('privacy', '1');
+  });
+</script>
 <style>
   .subscription-page { max-width:680px; margin:4rem 0; }
   h1 { font-size:clamp(2rem,5vw,3.5rem); }
