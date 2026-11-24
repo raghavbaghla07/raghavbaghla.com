@@ -8,6 +8,8 @@ do $$ begin
   exception when insufficient_privilege then null; end;
   begin perform public.rb_live_browsers(); raise exception 'Anonymous live count exposed';
   exception when insufficient_privilege then null; end;
+  begin perform public.rb_analytics_article_links(current_date,current_date); raise exception 'Anonymous links exposed';
+  exception when insufficient_privilege then null; end;
   begin perform public.rb_analytics_content(current_date,current_date,'','title',true,0); raise exception 'Anonymous articles exposed';
   exception when insufficient_privilege then null; end;
 end $$;
@@ -20,6 +22,8 @@ do $$ begin
   begin perform public.rb_analytics_content(current_date,current_date,'','views',true,0); raise exception 'Nonowner articles exposed';
   exception when insufficient_privilege then null; end;
   begin perform public.rb_live_browsers(); raise exception 'Nonowner live count exposed';
+  exception when insufficient_privilege then null; end;
+  begin perform public.rb_analytics_article_links(current_date,current_date); raise exception 'Nonowner links exposed';
   exception when insufficient_privilege then null; end;
   begin perform 1 from public.rb_analytics_daily; raise exception 'Raw rollup exposed';
   exception when insufficient_privilege then null; end;

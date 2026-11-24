@@ -54,6 +54,7 @@ createServer((req,res)=>{
           case 'rb_analytics_report':return send((await db.query<{r:unknown}>('select public.rb_analytics_report($1,$2,$3) r',[args.p_start,args.p_end,args.p_bucket])).rows[0].r);
           case 'rb_analytics_content':return send((await db.query<{r:unknown}>('select public.rb_analytics_content($1,$2,$3,$4,$5,$6) r',[args.p_start,args.p_end,args.p_search,args.p_sort,args.p_desc,args.p_offset])).rows[0].r);
           case 'rb_live_browsers':return send((await db.query<{n:string}>('select public.rb_live_browsers() n')).rows[0].n);
+          case 'rb_analytics_article_links':return send((await db.query('select * from public.rb_analytics_article_links($1,$2)',[args.p_start,args.p_end])).rows);
           case 'rb_measure':{
             const keys=['id','visitor','page','post','seconds','depth','source','click','destination','link','country','device','browser','campaign','medium','active','signup'];
             const parameters=keys.map((_,i)=>'$'+(i+1)).join(',');

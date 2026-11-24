@@ -20,6 +20,8 @@ from generate_series(0,74) d cross join lateral generate_series(1,6+(74-d)/6+(d*
 update public.rb_visits set last_active=now() where started::date=current_date and seconds%3=0;
 insert into public.rb_link_clicks(id,visit,destination,link_number)
 select gen_random_uuid(),id,'https://example.org',1 from public.rb_visits where post_id is not null and depth>=90;
+insert into public.rb_link_clicks(id,visit,destination,link_number)
+select gen_random_uuid(),id,'https://raghavbaghla.com',2 from public.rb_visits where post_id is not null and depth>=95;
 insert into public.rb_post_likes(post_id,visitor_id,created_at)
 select post_id,gen_random_uuid(),started from public.rb_visits where post_id is not null and depth>=96;
 insert into public.rb_comments(post_id,visitor_id,display_name,body,status,created_at)

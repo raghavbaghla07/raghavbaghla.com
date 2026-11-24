@@ -36,6 +36,19 @@ test('dashboard reports enforce ownership, count distinct browsers, and retain c
     const scalar = async <T>(query:string,args:unknown[]=[]) => (await db.query<{v:T}>(query,args)).rows[0].v;
     const visitor=crypto.randomUUID(), visit=crypto.randomUUID(), click=crypto.randomUUID();
     const post=await scalar<string>('select id v from public.rb_posts limit 1');
+    const allLinks=await db.query<{destination:string}>('select * from public.rb_analytics_article_links(current_date-29,current_date)');
+    assert.ok(allLinks.rows.some(row=>row.destination==='https://raghavbaghla.com'));
+    const outbound=await scalar<{destination:string}[]>("select public.rb_analytics_report(current_date-29,current_date,'day')->'links' v");
+    assert.ok(outbound.every(row=>row.destination!=='https://raghavbaghla.com'));
+    await db.query(`insert into public.rb_visits(id,visitor,page,post_id,started,seconds,depth,source)
+      select gen_random_uuid(),$1,'article',$2,t,seconds,depth,'Direct' from (values
+        ('2002-01-05'::date,10,20),('2002-01-07'::date,60,95),('2002-01-08'::date,20,100)) v(t,seconds,depth)`,[visitor,post]);
+    const exact=await scalar<{metrics:{current:{views:number;uniques:number;average:number;rate:number};previous:{views:number}},
+      trend:{day:string;views:number;uniques:number}[];audience:{new:number;returning:number}}>(
+      "select public.rb_analytics_report('2002-01-07','2002-01-08','week') v");
+    assert.deepEqual(exact.trend,[{day:'2002-01-07',views:2,uniques:1,likes:0,comments:0}]);
+    assert.equal(exact.metrics.current.average,40); assert.equal(exact.metrics.current.rate,50);
+    assert.equal(exact.metrics.previous.views,1); assert.deepEqual(exact.audience,{new:0,returning:1});
     await db.exec('set role service_role');
     const measure = (seconds:number,depth:number) => db.query(
       "select public.rb_measure($1,$2,'article',$3,$4,$5,'google.com',$6,'https://example.org/path?token=private',2,'IN','Mobile','Safari',null,null,true,true)",

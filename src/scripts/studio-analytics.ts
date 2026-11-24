@@ -89,11 +89,27 @@ export function setupAnalytics(client:SupabaseClient|null,openModeration:(id:str
       results.append(audience,pair,bars('Countries',regions,'Views'),coverage());
     } else if (selected==='Sources') {
       const values=(rows:{label:string;value:number}[]=[])=>rows.map(item=>[item.label,item.value]);
+      const headings=['Article','Destination host','Link in article','Clicks'];
+      const linkRows=(links:Report['links'])=>links.map(l=>[l.article,l.destination,l.link_number ?? '—',l.clicks]);
+      const details=element('details');
+      const allLinks=element('div');
+      details.append(element('summary','All article links, including internal links'),allLinks);
+      let loaded=false, loading=false;
+      details.addEventListener('toggle',async ()=>{
+        if (!details.open || loaded || loading || !client) return;
+        loading=true; allLinks.replaceChildren(note('Loading links…'));
+        try {
+          const {data,error}=await client.rpc('rb_analytics_article_links',{p_start:range.start,p_end:range.end});
+          if (error) throw error;
+          if (details.isConnected) allLinks.replaceChildren(tableBlock('All article links',headings,linkRows(data)));
+          loaded=true;
+        } catch { allLinks.replaceChildren(note('Could not load links. Close and reopen to retry.')); }
+        finally { loading=false; }
+      });
       results.append(bars('Traffic channels',r.breakdowns.channels ?? [],'Views'),
         tableBlock('Top referring hosts',['Source','Views'],values(r.breakdowns.hosts)),
         tableBlock('UTM campaigns',['Campaign','Views'],values(r.breakdowns.campaigns)),
-        tableBlock('Top outbound links',['Article','Destination host','Link in article','Clicks'],
-          r.links.map(l=>[l.article,l.destination,l.link_number ?? '—',l.clicks])),coverage());
+        tableBlock('Top outbound links',headings,linkRows(r.links)),details,coverage());
     } else {
       const f=r.funnel, mail=r.newsletter;
       const funnel=tableBlock('Article subscription funnel',['Stage','Article visits','From previous step','From article view'],[
