@@ -20,6 +20,9 @@ export const GET: APIRoute = async () => {
       summary: excerpt(post.summary?.trim() || post.body, 120),
       publishedAt: post.published_at,
     }));
-    return Response.json({hasPosts: posts.length > 0, posts},{headers});
+    return Response.json({hasPosts: posts.length > 0, posts},{headers:{
+      ...headers,
+      'Vercel-CDN-Cache-Control': 'public, s-maxage=15',
+    }});
   } catch { return Response.json({hasPosts:false},{status:503,headers}); }
 };

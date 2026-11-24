@@ -4,7 +4,7 @@ The personal website of Raghav Baghla.
 
 Built with Astro, TypeScript, Supabase, and plain CSS on the existing Vercel project.
 The opening page is static HTML with CSS animation. A small request loads up to
-three published articles for the homepage reveal. Montserrat Regular is
+three published articles independently of the homepage intro. Successful preview responses can be cached at Vercel for 15 seconds. Montserrat Regular is
 self-hosted, with only its Latin subset bundled and no external font requests.
 “Hii” appears once, then disappears before the smaller name introduction appears
 in the same centered position. Reduced-motion preferences show the name immediately.
