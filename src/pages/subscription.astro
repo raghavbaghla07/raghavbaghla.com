@@ -1,0 +1,60 @@
+---
+import WritingLayout from '../layouts/WritingLayout.astro';
+import EmailSubscription from '../components/EmailSubscription.astro';
+import { privateResponseHeaders, subscriptionClient, validSubscriptionToken } from '../lib/email-subscriptions';
+
+for (const [name, value] of Object.entries(privateResponseHeaders)) Astro.response.headers.set(name, value);
+Astro.response.headers.set('X-Robots-Tag', 'noindex');
+const messages: Record<string, string> = {
+  requested: 'If this address needs confirmation, a confirmation link will arrive by email.',
+  confirmed: 'You’ll receive an email when a new article is published.',
+  unsubscribed: 'You’re unsubscribed from The Afterthoughts.',
+  invalid: 'Enter a valid email address to subscribe.',
+  expired: 'This confirmation link has expired. Enter your email to request a new one.',
+  unavailable: 'Email subscriptions are temporarily unavailable. Please try again shortly.',
+};
+const status = Astro.url.searchParams.get('status') ?? '';
+const action = Astro.url.searchParams.get('action');
+const token = Astro.url.searchParams.get('token');
+const managing = (action === 'confirm' || action === 'unsubscribe') && validSubscriptionToken(token);
+
+if (Astro.request.method === 'POST') {
+  if (Astro.request.headers.get('origin') !== Astro.url.origin || !managing) {
+    return new Response(null, { status: 403, headers: privateResponseHeaders });
+  }
+  const client = subscriptionClient();
+  if (!client) return Astro.redirect('/subscription/?status=unavailable', 303);
+  if (action === 'confirm') {
+    const result = await client.rpc('rb_confirm_email_subscription', { p_token: token });
+    const outcome = result.error ? 'unavailable' : result.data ? 'confirmed' : 'expired';
+    return Astro.redirect('/subscription/?status=' + outcome, 303);
+  }
+  const result = await client.rpc('rb_unsubscribe_email', { p_token: token });
+  return Astro.redirect('/subscription/?status=' + (result.error ? 'unavailable' : 'unsubscribed'), 303);
+}
+
+const title = managing ? action === 'confirm' ? 'Confirm your subscription' : 'Unsubscribe' : 'Email subscriptions';
+---
+<WritingLayout title={title + ' · The Afterthoughts'}>
+  <div class="subscription-page">
+    <h1>{title}</h1>
+    {managing ? (
+      <form method="post">
+        <p>{action === 'confirm' ? 'Confirm to receive new articles from The Afterthoughts by email.' : 'Unsubscribe to stop receiving new articles by email.'}</p>
+        <button type="submit">{action === 'confirm' ? 'Confirm subscription' : 'Unsubscribe'}</button>
+      </form>
+    ) : (
+      <>
+        {Object.hasOwn(messages, status) && <p role="status">{messages[status]}</p>}
+        {(!status || status === 'invalid' || status === 'expired' || status === 'unavailable') && <EmailSubscription />}
+      </>
+    )}
+    <p><a href="/writing/">Back to The Afterthoughts</a></p>
+  </div>
+</WritingLayout>
+<style>
+  .subscription-page { max-width:680px; margin:4rem 0; }
+  h1 { font-size:clamp(2rem,5vw,3.5rem); }
+  button { min-height:44px; font:inherit; padding:.65rem .9rem; border:1px solid #77674f; border-radius:5px; background:#ddc6a3; color:#211b15; cursor:pointer; }
+  a { color:#d4bd9b; }
+</style>

@@ -53,8 +53,7 @@ the output directory to `dist`: Vercel uses the adapter's `.vercel/output` bundl
    password-recovery email delivery. Reset emails use a cross-device recovery flow.
 6. Add `PUBLIC_SUPABASE_URL` and `PUBLIC_SUPABASE_PUBLISHABLE_KEY` to Vercel's
    production environment and to an ignored local `.env` (see `.env.example`).
-   Redeploy: public variables are bundled at build time. No service-role or secret
-   key is required. Legacy `NEXT_PUBLIC_SUPABASE_*` public settings are accepted.
+   Redeploy: public variables are bundled at build time. Studio uses the public credentials. Legacy `NEXT_PUBLIC_SUPABASE_*` public settings are accepted.
 7. Open `/studio/`, sign in with your existing password or request an emailed
    sign-in link, save a draft, preview it, and publish when ready. Email link login
    is restricted to existing accounts and still requires owner membership.
@@ -100,7 +99,7 @@ Owner membership can only be provisioned through trusted database administration
   Preview and public pages use the same bounded renderer, escaped text and safe
   link/image handling. Saved HTML is never rendered directly.
 - `/writing/` lists up to the latest 100 published posts, with permanent individual
-  post URLs. No drafts, demo posts, or signup pages are published.
+  post URLs. Drafts and demo posts stay private.
 - The Open studio link appears at the bottom of the homepage. Database owner
   membership controls editing and publishing.
 - To enable **Delete article** for saved drafts and published articles, apply
@@ -177,6 +176,15 @@ login or client-side authorization bypass is provided.
 
 Apply `supabase/migrations/202611230001_readership.sql` after the existing migrations, then deploy the Astro app using its existing Vercel configuration. The migration uses the existing Studio owner allowlist and public Supabase credentials.
 
-All published posts belong to The Afterthoughts. The archive and articles offer personal RSS subscriptions. Readers paste their feed address into an RSS app and can enable notifications there. The public feed at `/feed.xml` also supports RSS autodiscovery. Studio counts personal feeds requested during the past 30 days. Public feed readership cannot be counted individually.
+The archive and articles offer email subscriptions to The Afterthoughts. Readers confirm their email address and can unsubscribe from any article email. Studio shows the total number of confirmed subscribers. Personal RSS feeds have no email addresses, so those readers need to subscribe by email.
+
+To enable email delivery:
+
+1. Apply the migration 202611240001_email_subscriptions.sql after the readership migration.
+2. Verify your sending domain in [Resend](https://resend.com/docs/dashboard/domains/introduction) and create a sending API key.
+3. Set the production Vercel environment variables SUPABASE_SECRET_KEY, RESEND_API_KEY, NEWSLETTER_FROM (an address on the verified domain), and CRON_SECRET (a long random value). Keep these out of client bundles and Git.
+4. Deploy. Subscribe with an inbox you control, confirm the link, and verify that Studio counts it. To verify article delivery before going live, publish a test article in a separate environment with a separate database and mailing list.
+
+The first publication queues a message for readers who already confirmed. Studio starts sending after publication, and the daily Vercel cron processes remaining deliveries and retries failures. Existing public articles, edits, and repeat publications do not start another send. Unpublishing cancels pending notifications. The queue attempts a delivery up to seven times. Check Vercel logs and Resend delivery activity when investigating failures.
 
 Studio → Analytics reports 7-, 30-, and 90-day activity beginning when measurement is deployed. Views count public page loads. A random browser-local identifier estimates unique visitors. Active time pauses when the tab loses focus or after a minute without interaction. A good read reaches 90% of the article and records at least 30 active seconds. Link reports record the destination supplied in the article. Referrers are recorded by hostname. Global Privacy Control and Do Not Track disable browser analytics.

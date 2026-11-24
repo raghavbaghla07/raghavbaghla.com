@@ -349,7 +349,17 @@ get<HTMLFormElement>('composer-form').addEventListener('submit', event => { even
 get('publish-button').addEventListener('click', () => { void run(async () => { if (!title.value.trim() || !editor.getText().trim())
     throw new Error('Add a title and some writing before publishing.'); if (!await ask('Ready to share?', 'This saved article and its attached images will be visible to everyone on your website.', 'Publish on website'))
     return; await save(); const result = await client!.rpc('rb_publish_draft', { p_id: currentId, p_expected_revision: revision }); if (result.error)
-    throw result.error; await refresh(); say('Article published on your website.'); }); });
+    throw result.error;
+    // Publication already queued delivery in the same database transaction.
+    void client!.auth.getSession().then(({ data }) => {
+        if (!data.session) return;
+        return fetch('/api/article-emails', {
+            method: 'POST',
+            headers: { Authorization: 'Bearer ' + data.session.access_token },
+            keepalive: true,
+        });
+    }).catch(() => { /* The scheduled worker will process pending deliveries. */ });
+    await refresh(); say('Article published on your website.'); }); });
 get('unpublish-button').addEventListener('click', () => { void run(async () => { if (!await ask('Unpublish this article?', 'It will disappear from your website. Your private saved draft will remain.', 'Unpublish'))
     return; const result = await client!.rpc('rb_unpublish_post', { p_id: currentId }); if (result.error)
     throw result.error; await refresh(); say('Article unpublished. Your saved draft is still private.'); }); });

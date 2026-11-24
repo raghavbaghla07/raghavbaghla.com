@@ -1,7 +1,7 @@
 import type { createStudioClient } from '../lib/supabase';
 
 type Report = {
-  visitors:number; views:number; followers:number; subscriptions:number;
+  visitors:number; views:number; email_subscribers?:number;
   traffic:{day:string;views:number;visitors:number}[];
   articles:{title:string;views:number;readers:number;seconds:number;reads:number}[];
   links:{title:string;destination:string;clicks:number}[];
@@ -25,7 +25,9 @@ export function setupAnalytics(client: ReturnType<typeof createStudioClient>) {
     status.textContent = 'Visitors are distinct browsers. A good read reaches 90% of the article with at least 30 seconds of active reading.';
     const metrics = document.createElement('div');
     metrics.className = 'metric-grid';
-    for (const [label,value] of [['Page views',report.views],['Unique browsers',report.visitors],['Subscriptions',report.subscriptions],['Active feeds · last 30 days',report.followers]] as const) {
+    const counts: [string, number][] = [['Page views', report.views], ['Unique browsers', report.visitors]];
+    if (typeof report.email_subscribers === 'number') counts.push(['Email subscribers', report.email_subscribers]);
+    for (const [label,value] of counts) {
       const card = document.createElement('div'), number = document.createElement('strong');
       number.textContent = value.toLocaleString(); card.append(number,label); metrics.append(card);
     }

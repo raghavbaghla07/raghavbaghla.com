@@ -1,5 +1,5 @@
 ---
-import FollowSeries from "../../components/FollowSeries.astro";
+import EmailSubscription from "../../components/EmailSubscription.astro";
 import WritingLayout from '../../layouts/WritingLayout.astro';
 import { createPublicClient } from '../../lib/supabase';
 import { excerpt } from '../../lib/studio-content';
@@ -23,7 +23,7 @@ Astro.response.headers.set('Cache-Control','no-store');
     <p class="journal-kicker">The journal</p>
     <h1>The Afterthoughts<span>.</span></h1>
     <p>A place for learnings, book notes, and ideas worth keeping.<br class="desktop-break" /> Written slowly. Shared thoughtfully.</p>
-    <FollowSeries />
+    <EmailSubscription />
   </header>
   <div class="collection-heading"><h2>All writing</h2><span>{!unavailable && posts.length ? `${posts.length}${posts.length === 100 ? '+' : ''} ${posts.length === 1 ? 'article' : 'articles'}` : 'By Raghav Baghla'}</span></div>
   <div class="posts">
