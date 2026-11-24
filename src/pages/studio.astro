@@ -14,7 +14,7 @@ const tools = [
   ['bold','B','Bold (Ctrl+B)'],['italic','I','Italic (Ctrl+I)'],['underline','U','Underline (Ctrl+U)'],
   ['superscript','x²','Superscript'],['subscript','x₂','Subscript'],['strike','S','Strikethrough'],['highlight','▰','Highlight'],['code','<>','Inline code'],
   ['bulletList','• List','Bullet list'],['orderedList','1. List','Numbered list'],['blockquote','❝','Blockquote'],
-  ['codeBlock','{ }','Code block'],['horizontalRule','—','Divider'],['link','↗','Insert or edit link'],['clear','Tx','Clear formatting'],
+  ['codeBlock','{ }','Code block'],['horizontalRule','—','Divider'],['link','Link','Insert or edit link (Ctrl/⌘+K)'],['clear','Tx','Clear formatting'],
   ['indent','→','Indent list item'],['outdent','←','Outdent list item'],
 ];
 ---
@@ -83,7 +83,20 @@ const tools = [
         </div>
       </section>
       <dialog id="preview-dialog" class="preview-dialog" aria-labelledby="preview-title"><div class="dialog-heading"><span>ARTICLE PREVIEW</span><button id="close-preview" type="button">Close</button></div><article><p class="secondary small" id="preview-byline">Raghav Baghla</p><h2 id="preview-title"></h2><div id="preview-body" class="article-content"></div></article></dialog>
-      <dialog id="link-dialog" aria-labelledby="link-heading"><h2 id="link-heading">Add a link</h2><form id="link-form"><label for="link-url">Link destination</label><input id="link-url" type="text" placeholder="https://example.com" required /><p class="secondary small">Use a full https://, http:// or mailto: address.</p><p id="link-error" class="error" role="alert" hidden></p><div class="confirm-actions"><button type="button" id="link-remove">Remove link</button><button type="button" id="link-cancel">Cancel</button><button class="primary" type="submit">Apply link</button></div></form></dialog>
+      <dialog id="link-dialog" aria-labelledby="link-heading">
+        <h2 id="link-heading">Add a link</h2>
+        <form id="link-form">
+          <label for="link-url">Link destination</label>
+          <input id="link-url" type="text" placeholder="https://example.com" required />
+          <button type="button" id="link-follow" data-follow-url={new URL('/subscription/', Astro.site).href}>Use The Afterthoughts follow page</button>
+          <p id="link-error" class="error" role="alert" hidden></p>
+          <div class="confirm-actions">
+            <button type="button" id="link-remove">Remove link</button>
+            <button type="button" id="link-cancel">Cancel</button>
+            <button class="primary" type="submit" id="link-apply">Apply link</button>
+          </div>
+        </form>
+      </dialog>
       <dialog id="confirm-dialog" aria-labelledby="confirm-title"><h2 id="confirm-title"></h2><p id="confirm-description"></p><div class="confirm-actions"><button id="confirm-cancel" type="button">Cancel</button><button id="confirm-proceed" type="button" class="primary">Continue</button></div></dialog>
     </main>
     <script src="../scripts/studio.ts"></script>

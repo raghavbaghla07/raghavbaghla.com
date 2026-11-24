@@ -7,7 +7,7 @@ import { privateResponseHeaders, subscriptionClient, validSubscriptionToken } fr
 for (const [name, value] of Object.entries(privateResponseHeaders)) Astro.response.headers.set(name, value);
 Astro.response.headers.set('X-Robots-Tag', 'noindex');
 const messages: Record<string, string> = {
-  requested: 'If this address needs confirmation, a confirmation link will arrive by email.',
+  requested: 'If this address is new, we’ll email you a link to confirm your follow. Open it to start receiving updates.',
   confirmed: 'You’ll receive an email when a new post is published in The Afterthoughts.',
   unsubscribed: 'You’re no longer following The Afterthoughts.',
   invalid: 'Enter a valid email address to follow The Afterthoughts.',
@@ -35,9 +35,13 @@ if (Astro.request.method === 'POST') {
   return Astro.redirect('/subscription/?status=' + (result.error ? 'unavailable' : 'unsubscribed'), 303);
 }
 
-const title = managing ? action === 'confirm' ? 'Confirm your follow' : 'Unfollow The Afterthoughts' : 'The Afterthoughts notifications';
+const title = managing
+  ? action === 'confirm' ? 'Confirm your follow' : 'Unfollow The Afterthoughts'
+  : status === 'requested' ? 'Check your inbox'
+  : status === 'confirmed' ? 'You’re following The Afterthoughts'
+  : 'Follow The Afterthoughts';
 ---
-<WritingLayout title={title + ' · The Afterthoughts'}>
+<WritingLayout title={title + ' · Raghav Baghla'}>
   <div class="subscription-page">
     <h1>{title}</h1>
     {managing ? (
@@ -48,7 +52,7 @@ const title = managing ? action === 'confirm' ? 'Confirm your follow' : 'Unfollo
     ) : (
       <>
         {Object.hasOwn(messages, status) && <p role="status">{messages[status]}</p>}
-        {(!status || status === 'invalid' || status === 'expired' || status === 'unavailable') && <EmailSubscription />}
+        {(!Object.hasOwn(messages, status) || status === 'invalid' || status === 'expired' || status === 'unavailable') && <EmailSubscription expanded />}
       </>
     )}
     <p><a href="/writing/">Back to The Afterthoughts</a></p>

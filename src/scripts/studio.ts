@@ -443,15 +443,38 @@ else
     editor.chain().focus().setHeading({ level: Number(value) as 2 | 3 | 4 }).run(); });
 get<HTMLSelectElement>('code-language').addEventListener('change', event => { editor.chain().focus().updateAttributes('codeBlock', { language: (event.target as HTMLSelectElement).value || null }).run(); });
 const linkDialog = get<HTMLDialogElement>('link-dialog');
+const linkInput = get<HTMLInputElement>('link-url');
+function openLinkDialog() {
+    if (busy || linkDialog.open) return;
+    const href = editor.getAttributes('link').href || '';
+    const canLink = Boolean(href) || !editor.state.selection.empty;
+    linkInput.value = href;
+    linkInput.disabled = !canLink;
+    get<HTMLButtonElement>('link-follow').disabled = !canLink;
+    get<HTMLButtonElement>('link-apply').disabled = !canLink;
+    get<HTMLButtonElement>('link-remove').hidden = !href;
+    get('link-error').textContent = canLink ? '' : 'Select the text you want to turn into a link, then open Link again.';
+    get('link-error').hidden = canLink;
+    linkDialog.showModal();
+}
+editor.view.dom.addEventListener('keydown', event => {
+    if ((event.ctrlKey || event.metaKey) && !event.altKey && !event.shiftKey && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        openLinkDialog();
+    }
+});
+get('link-follow').addEventListener('click', event => {
+    linkInput.value = (event.currentTarget as HTMLButtonElement).dataset.followUrl!;
+    get('link-error').hidden = true;
+    get('link-apply').focus();
+});
 for (const button of document.querySelectorAll<HTMLButtonElement>('[data-command]'))
     button.addEventListener('click', () => {
         if (busy)
             return;
         const command = button.dataset.command!;
         if (command === 'link') {
-            get<HTMLInputElement>('link-url').value = editor.getAttributes('link').href || '';
-            get('link-error').hidden = true;
-            linkDialog.showModal();
+            openLinkDialog();
             return;
         }
         const chain = editor.chain().focus();

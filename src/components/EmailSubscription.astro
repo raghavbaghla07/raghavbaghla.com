@@ -1,9 +1,12 @@
 ---
 import { emailConfigured } from '../lib/email-subscriptions';
+interface Props { expanded?: boolean }
+const { expanded = false } = Astro.props;
 const available = emailConfigured();
+const Container = expanded ? 'section' : 'details';
 ---
-<details class="email-subscription">
-  <summary>Follow The Afterthoughts</summary>
+<Container class="email-subscription">
+  {!expanded && <summary>Follow The Afterthoughts</summary>}
   <p>Get an email when a new post is published in The Afterthoughts. You can unfollow anytime.</p>
   <form method="post" action="/api/subscribe" aria-describedby={!available ? 'subscription-status' : undefined}>
     <input type="hidden" name="topic" value="afterthoughts" />
@@ -14,7 +17,7 @@ const available = emailConfigured();
     </div>
   </form>
   {!available && <p id="subscription-status" class="subscription-status">Following by email is temporarily unavailable.</p>}
-</details>
+</Container>
 <style>
   .email-subscription { max-width:680px; margin:2rem 0; padding:1.5rem; border:1px solid #433b2f; border-radius:10px; background:#171410; color:#ece5db; }
   summary { cursor:pointer; color:#e6cfad; font:400 1.35rem Georgia,serif; }
