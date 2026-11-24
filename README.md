@@ -187,4 +187,70 @@ To enable email delivery:
 
 The first publication queues a message for readers who already confirmed. Studio starts sending after publication, and the daily Vercel cron processes remaining deliveries and retries failures. Existing public articles, edits, and repeat publications do not start another send. Unpublishing cancels pending notifications. The queue attempts a delivery up to seven times. Check Vercel logs and Resend delivery activity when investigating failures.
 
-Studio → Analytics reports 7-, 30-, and 90-day activity beginning when measurement is deployed. Views count public page loads. A random browser-local identifier estimates unique visitors. Active time pauses when the tab loses focus or after a minute without interaction. A good read reaches 90% of the article and records at least 30 active seconds. Link reports record the destination supplied in the article. Referrers are recorded by hostname. Global Privacy Control and Do Not Track disable browser analytics.
+### Studio analytics dashboard
+
+Open **Studio → Analytics** after signing in as an allowlisted owner. The five sections share a UTC reporting period. Use the 7-, 30-, or 90-day presets, or apply a custom range of up to 365 days. Overview compares with the preceding equal number of calendar days. A range ending today includes the partial current day. Week and month charts include only the selected portion of each calendar bucket. Each table has a CSV export. The article export includes every page of the current search in its selected order.
+
+| Section | Reports |
+| --- | --- |
+| Overview | Views, unique browsers, average active time, good-read rate, confirmations, likes received and comments submitted. Day, week and month trends. Pending comments open the existing article moderator. The five-minute active-browser count refreshes every 45 seconds while Overview is visible. |
+| Content | Search and sort articles, including published articles with zero visits. Compare the percentage reaching 25/50/75/90/100% and attributed confirmations. Rank the top 12 pages by total or average active time. |
+| Audience | Country, device and browser show page views. New and returning count distinct browsers. A returning browser had a recorded visit before the period began. |
+| Sources | Direct, search, social, newsletter and other traffic. Referring hosts and configured campaigns show the top 50. Outbound and all-article-link rankings show the top 100. Link position distinguishes multiple links to one host within an article. |
+| Newsletter | Follow measured article visits through subscribe clicks and confirmations, with conversions from the previous stage and from the article view. Inspect provider-accepted sends during the period and current queue, exhausted-attempt and confirmed-subscriber counts. |
+
+### Measurement and privacy
+
+- Views count loads of the homepage, writing archive and public articles. A random browser-local ID estimates unique visitors. Each bucket and the full period count distinct IDs independently. Clearing storage or using another browser can create another ID.
+- Active time pauses on blur, while hidden, or after one minute without interaction. Each visit records up to four hours. Good-read rate uses article views as its denominator and requires 90% article scroll plus 30 active seconds. Drop-off reflects the furthest measured position, including short articles that fit on screen.
+- Global Privacy Control and Do Not Track suppress browser analytics and signup attribution. The measurement endpoint also checks the corresponding HTTP headers. Subscribing, liking and commenting remain available. Operational totals can include those deliberate actions.
+- The server reads the country code supplied by Vercel and reduces the user agent to a device class and browser family. Analytics stores neither raw IP addresses nor user-agent strings. Missing information appears as **Unknown**. The existing signup abuse limit uses a separate keyed hash of the sender address. The private email system retains the addresses it needs to send requested messages.
+- Referrers use DNS hostnames. Destinations use a host or a generic email-link label, plus link position for newly measured clicks. Paths, queries, fragments, literal IPs and email-link recipients are excluded. The upgrade also reduces existing stored destinations to this format. Back up the database before applying it if you need the original records.
+- Use `utm_medium=newsletter` and `utm_campaign=afterthoughts` for article newsletter links. Outgoing article emails add both automatically. For another campaign, set the optional server-side Vercel variable `ANALYTICS_CAMPAIGNS` to a comma-separated list of approved lowercase labels, for example `winter-reading,book-club`. Use 1–48 characters, beginning with a letter, with letters, digits, underscores or hyphens thereafter. Unrecognized campaign names are discarded. Recognized media select the channel even when a mail app supplies no referrer.
+- A new subscriber is counted on confirmation day. Article attribution uses the originating article visit if the signup request arrives within 24 hours of its start. A private pending subscription temporarily references the visit and releases that reference on confirmation. Each visit counts once at each funnel stage. A later confirmation can update an earlier visit cohort. Unattributed confirmations count toward the overall subscriber metric.
+- Historical depths, reading times and visits support retrospective reporting. New audience labels, campaigns, active presence and funnel attribution start at rollout. Historical likes, confirmations and sends can be reconstructed only from rows still present at migration time. Daily counts preserve new likes received, confirmations and accepted sends across subsequent unlikes or unsubscribes. Comments count submissions across moderation states. Inbox delivery receipts are unavailable.
+
+### Apply and deploy on the existing project
+
+1. Back up the target Supabase database. In its SQL Editor, confirm that the editor, engagement, deletion, readership and email migrations through `202611240001_email_subscriptions.sql` have already been applied. For a new database, apply the files in `supabase/migrations/` once each in ascending filename order.
+2. For an existing installation at the email migration, run `supabase/migrations/202611240002_studio_analytics.sql`, then `supabase/migrations/202611240003_article_link_report.sql`, once each. Both are transactional. Run `supabase/tests/analytics-access.sql` in a separate SQL Editor query. It checks anonymous, non-owner and owner reads and rolls back its fixtures.
+3. In Vercel's **raghavbaghla-com → Settings → Environment Variables**, verify `PUBLIC_SUPABASE_URL`, `PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and the **server-only** `SUPABASE_SECRET_KEY` for Production. Full measurements use the existing server credential. A deployment with only the public key retains basic readership tracking. Keep the existing email and cron settings. Add `ANALYTICS_CAMPAIGNS` if needed.
+4. With Node 24, run `npm ci`, `npm run check`, `npm test`, and `npm run build`. Merge the integrated dashboard feature branch into `main` and push `main` to trigger the existing Vercel Git deployment. Keep the repository's Astro adapter, project output settings, domains and cron configuration.
+5. After deployment, open a public article in a browser with tracking enabled. Then sign in at `/studio/`, open Analytics and check today's views and active browsers. Use an opted-out browser to verify that it sends no readership requests. Run signup and send tests against a separate mailing list and database.
+
+### Preview with sample data
+
+The sample runs entirely on loopback and uses an in-memory database. It creates four published articles, 75 days of readership, engagement, email counts and a pending comment. Restarting the fixture resets it. Run these commands from the repository in three separate PowerShell windows.
+
+1. Start the seeded Supabase fixture.
+
+   ```powershell
+   node tests/fixtures/supabase.ts --analytics
+   ```
+
+2. Start Astro with process-local fixture settings.
+
+   ```powershell
+   $env:PUBLIC_SUPABASE_URL='http://127.0.0.1:4322'
+   $env:PUBLIC_SUPABASE_PUBLISHABLE_KEY='local-test-only'
+   $env:SUPABASE_SECRET_KEY='fixture-server-only'
+   $env:RESEND_API_KEY='fixture-disabled'
+   $env:NEWSLETTER_FROM=''
+   npm.cmd run dev -- --port 4323 --ignore-lock
+   ```
+
+3. Run `node tests/fixtures/proxy.ts`. Visit `http://127.0.0.1:4322/studio/`, sign in with `owner@example.invalid` and `qa-only`, and open Analytics. The narrow-layout preview is at `http://127.0.0.1:4322/qa/mobile`. Stop each process with Ctrl+C.
+
+### Implementation files
+
+| Area | File paths |
+| --- | --- |
+| Schema, aggregate queries and grants | `supabase/migrations/202611240002_studio_analytics.sql`, `supabase/migrations/202611240003_article_link_report.sql` |
+| Collection and privacy | `src/scripts/readership.ts`, `src/pages/api/readership.ts`, `src/lib/readership.ts` |
+| Newsletter attribution | `src/pages/api/subscribe.ts`, `src/pages/subscription.astro`, `src/lib/email-subscriptions.ts` |
+| Studio shell and presentation | `src/pages/studio.astro`, `src/components/StudioAnalytics.astro`, `src/styles/analytics.css`, `src/styles/studio.css` |
+| Reports and moderation navigation | `src/scripts/studio-analytics.ts`, `src/scripts/analytics-charts.ts`, `src/scripts/analytics-content.ts`, `src/lib/analytics-report.ts`, `src/scripts/studio.ts` |
+| Tests and access checks | `tests/analytics-database.test.ts`, `tests/readership-privacy.test.ts`, `tests/analytics-report.test.ts`, `supabase/tests/analytics-access.sql` |
+| Local preview | `tests/fixtures/seed-analytics.sql`, `tests/fixtures/analytics-db.ts`, `tests/fixtures/supabase.ts`, `tests/fixtures/proxy.ts` |
+
+Possible follow-ups include comparing subscription conversion by campaign, adding delivery and bounce counts from authenticated provider webhooks, or sending the owner a weekly readership summary.
