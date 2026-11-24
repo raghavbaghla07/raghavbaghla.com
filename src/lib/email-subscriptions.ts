@@ -26,9 +26,9 @@ export function validSubscriptionToken(value: unknown): value is string {
   return typeof value === 'string' && /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(value);
 }
 
-export function subscriptionLink(site: URL, action: 'confirm' | 'unsubscribe', token: string) {
+function unsubscribeLink(site: URL, token: string) {
   const url = new URL('/subscription/', site);
-  url.searchParams.set('action', action);
+  url.searchParams.set('action', 'unsubscribe');
   url.searchParams.set('token', token);
   return url.href;
 }
@@ -62,7 +62,7 @@ export async function deliverArticleEmails(site: URL, client: NonNullable<Return
     const articleUrl = new URL('/writing/' + encodeURIComponent(delivery.slug) + '/', site);
     articleUrl.searchParams.set('utm_medium', 'newsletter');
     articleUrl.searchParams.set('utm_campaign', 'afterthoughts');
-    const unsubscribeUrl = subscriptionLink(site, 'unsubscribe', delivery.unsubscribe);
+    const unsubscribeUrl = unsubscribeLink(site, delivery.unsubscribe);
     try {
       await sendEmail(
         delivery.email,

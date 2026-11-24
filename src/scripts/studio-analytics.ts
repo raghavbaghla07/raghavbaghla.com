@@ -115,12 +115,12 @@ export function setupAnalytics(client:SupabaseClient|null,openModeration:(id:str
       const funnel=tableBlock('Topic follow funnel',['Stage','Article visits','From previous step','From article view'],[
         ['Article view',f.eligible,'—',ratio(f.eligible,f.eligible)],
         ['Follow by email',f.signups,ratio(f.signups,f.eligible),ratio(f.signups,f.eligible)],
-        ['Confirmed follower',f.confirmed,ratio(f.confirmed,f.signups),ratio(f.confirmed,f.eligible)],
+        ['Follow activated',f.confirmed,ratio(f.confirmed,f.signups),ratio(f.confirmed,f.eligible)],
       ]);
       funnel.append(note('Each measured article visit counts once per stage. A confirmation stays with the original visit, even if it happens later.'));
       const delivery=tableBlock('Email delivery',['Measure','Count'],[
         ['Provider-accepted sends in period',mail.accepted],['Queued or retrying now',mail.queued],
-        ['Attempt limit reached · unsent now',mail.exhausted],['Confirmed followers now',mail.total],
+        ['Attempt limit reached · unsent now',mail.exhausted],['Active followers now',mail.total],
       ]);
       delivery.append(note('Accepted sends count messages the email provider accepted. Inbox delivery receipts are unavailable.'));
       results.append(funnel,delivery,coverage());

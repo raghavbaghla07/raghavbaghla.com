@@ -176,16 +176,16 @@ login or client-side authorization bypass is provided.
 
 Apply `supabase/migrations/202611230001_readership.sql` after the existing migrations, then deploy the Astro app using its existing Vercel configuration. The migration uses the existing Studio owner allowlist and public Supabase credentials.
 
-Readers can choose **Follow The Afterthoughts** on the writing archive or a post in that topic. They enter an email address after opening the follow control, confirm it, and receive a notification when a new post is published in The Afterthoughts. Each notification includes an unfollow link. Studio shows the total number of confirmed followers.
+Readers can choose **Follow The Afterthoughts** on the writing archive or a post in that topic. Submitting an email address starts the follow immediately. Followers receive a notification when a new post is published in The Afterthoughts. Each notification includes an unfollow link. Studio shows the total number of active followers.
 
 To enable email delivery:
 
-1. Apply the SQL migrations in filename order through `202611240004_afterthoughts_topic_follow.sql`. Studio publishes to The Afterthoughts, the site's current writing topic.
+1. Apply the SQL migrations in filename order through `202611240005_instant_afterthoughts_follow.sql`. Studio publishes to The Afterthoughts, the site's current writing topic.
 2. Verify your sending domain in [Resend](https://resend.com/docs/dashboard/domains/introduction) and create a sending API key.
 3. Set the production Vercel environment variables SUPABASE_SECRET_KEY, RESEND_API_KEY, NEWSLETTER_FROM (an address on the verified domain), and CRON_SECRET (a long random value). Keep these out of client bundles and Git.
-4. Deploy. Subscribe with an inbox you control, confirm the link, and verify that Studio counts it. To verify article delivery before going live, publish a test article in a separate environment with a separate database and mailing list.
+4. Deploy. Subscribe with an inbox you control and verify that Studio counts it immediately. To verify article delivery before going live, publish a test article in a separate environment with a separate database and mailing list.
 
-The first publication queues a message for readers who already confirmed a follow for the post's topic. Studio starts sending after publication, and the daily Vercel cron processes remaining deliveries and retries failures. Existing posts, edits, and repeat publications do not start another send. Unpublishing cancels pending notifications. The queue attempts a delivery up to seven times. Check Vercel logs and Resend delivery activity when investigating failures.
+The first publication queues a message for readers who already follow the post's topic. Studio starts sending after publication, and the daily Vercel cron processes remaining deliveries and retries failures. Existing posts, edits, and repeat publications do not start another send. Unpublishing cancels pending notifications. The queue attempts a delivery up to seven times. Check Vercel logs and Resend delivery activity when investigating failures.
 
 ### Studio analytics dashboard
 
@@ -207,7 +207,7 @@ Open **Studio → Analytics** after signing in as an allowlisted owner. The five
 - The server reads the country code supplied by Vercel and reduces the user agent to a device class and browser family. Analytics stores neither raw IP addresses nor user-agent strings. Missing information appears as **Unknown**. The existing signup abuse limit uses a separate keyed hash of the sender address. The private email system retains the addresses it needs to send requested messages.
 - Referrers use DNS hostnames. Destinations use a host or a generic email-link label, plus link position for newly measured clicks. Paths, queries, fragments, literal IPs and email-link recipients are excluded. The upgrade also reduces existing stored destinations to this format. Back up the database before applying it if you need the original records.
 - Use `utm_medium=newsletter` and `utm_campaign=afterthoughts` for article newsletter links. Outgoing article emails add both automatically. For another campaign, set the optional server-side Vercel variable `ANALYTICS_CAMPAIGNS` to a comma-separated list of approved lowercase labels, for example `winter-reading,book-club`. Use 1–48 characters, beginning with a letter, with letters, digits, underscores or hyphens thereafter. Unrecognized campaign names are discarded. Recognized media select the channel even when a mail app supplies no referrer.
-- A new subscriber is counted on confirmation day. Article attribution uses the originating article visit if the signup request arrives within 24 hours of its start. A private pending subscription temporarily references the visit and releases that reference on confirmation. Each visit counts once at each funnel stage. A later confirmation can update an earlier visit cohort. Unattributed confirmations count toward the overall subscriber metric.
+- A new follower is counted on the day their follow activates. Article attribution uses the originating article visit if the request arrives within 24 hours of its start. Each visit counts once at each funnel stage. Unattributed follows count toward the overall follower metric.
 - Historical depths, reading times and visits support retrospective reporting. New audience labels, campaigns, active presence and funnel attribution start at rollout. Historical likes, confirmations and sends can be reconstructed only from rows still present at migration time. Daily counts preserve new likes received, confirmations and accepted sends across subsequent unlikes or unsubscribes. Comments count submissions across moderation states. Inbox delivery receipts are unavailable.
 
 ### Apply and deploy on the existing project
