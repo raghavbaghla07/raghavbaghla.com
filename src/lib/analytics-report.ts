@@ -1,6 +1,6 @@
 export const metrics = [
   ['views','Page views'],['uniques','Unique browsers'],['average','Avg. active time'],['rate','Good-read rate'],
-  ['subscribers','New subscribers'],['likes','Likes received'],['comments','Comments submitted'],
+  ['subscribers','New followers'],['likes','Likes received'],['comments','Comments submitted'],
 ] as const;
 export type Metric = typeof metrics[number][0];
 export type Trend = { day:string; views:number; uniques:number; likes:number; comments:number };
@@ -22,7 +22,7 @@ export type Report = {
 export const columns = [
   ['title','Article'],['views','Views'],['uniques','Uniques'],['average','Avg. active time'],
   ['d25','Reached 25%'],['d50','Reached 50%'],['d75','Reached 75%'],['d90','Reached 90%'],['d100','Reached 100%'],
-  ['rate','Good-read rate'],['likes','Likes'],['comments','Comments'],['subscribers','Subscriptions'],
+  ['rate','Good-read rate'],['likes','Likes'],['comments','Comments'],['subscribers','Follows'],
 ] as const;
 export type Column = typeof columns[number][0];
 export type ArticleRow = {title:string;id:string} & Record<Exclude<Column,'title'>,number|null>;

@@ -24,7 +24,7 @@ const date = new Date(post.published_at).toLocaleDateString('en-IN', { day:'nume
     <div class="article-content" set:html={renderArticle(article, post.images, path => `/media/${path}`)} />
     {!post.article && !!post.images.length && <div class="post-images">{post.images.map(image => <figure><img src={`/media/${image.path}`} alt={image.alt} loading="lazy" /></figure>)}</div>}
     {!!article.tags.length && <div class="article-topics" aria-label="Article topics">{article.tags.map(tag => <span>{tag}</span>)}</div>}
-    <EmailSubscription />
+    {post.email_topic !== null && <EmailSubscription />}
     <ArticleEngagement id={post.id} title={post.title} slug={post.slug} />
     <footer class="article-end"><div><p>Thanks for reading.</p><span>More learnings, books, and ideas worth keeping.</span></div><a href="/writing/">Explore all writing</a></footer>
   </div>

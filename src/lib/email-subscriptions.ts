@@ -70,8 +70,8 @@ export async function deliverArticleEmails(site: URL, client: NonNullable<Return
         [
           'New in The Afterthoughts',
           delivery.title,
-          'Read the article: ' + articleUrl.href,
-          'Unsubscribe: ' + unsubscribeUrl,
+          'Read the post: ' + articleUrl.href,
+          'Unfollow The Afterthoughts: ' + unsubscribeUrl,
         ].join('\n\n'),
         'article/' + delivery.id,
       );

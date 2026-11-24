@@ -2,7 +2,7 @@ export type PostImage = { path: string; alt: string };
 import type { ArticleContent } from './article';
 export type DraftInput = { title: string; body: string; images: PostImage[]; article?: ArticleContent | null };
 export type Draft = DraftInput & { id: string; revision: number; created_at: string; updated_at: string };
-export type PublishedPost = DraftInput & { id: string; slug: string; published_at: string; updated_at: string };
+export type PublishedPost = DraftInput & { id: string; slug: string; published_at: string; updated_at: string; email_topic?: 'afterthoughts' | null };
 
 export function validateDraft(value: DraftInput): string | null {
   if (!value.title.trim() && !value.body.trim() && !value.images.length) return 'Write something before saving.';

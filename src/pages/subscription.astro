@@ -8,11 +8,11 @@ for (const [name, value] of Object.entries(privateResponseHeaders)) Astro.respon
 Astro.response.headers.set('X-Robots-Tag', 'noindex');
 const messages: Record<string, string> = {
   requested: 'If this address needs confirmation, a confirmation link will arrive by email.',
-  confirmed: 'You’ll receive an email when a new article is published.',
-  unsubscribed: 'You’re unsubscribed from The Afterthoughts.',
-  invalid: 'Enter a valid email address to subscribe.',
+  confirmed: 'You’ll receive an email when a new post is published in The Afterthoughts.',
+  unsubscribed: 'You’re no longer following The Afterthoughts.',
+  invalid: 'Enter a valid email address to follow The Afterthoughts.',
   expired: 'This confirmation link has expired. Enter your email to request a new one.',
-  unavailable: 'Email subscriptions are temporarily unavailable. Please try again shortly.',
+  unavailable: 'Following by email is temporarily unavailable. Please try again shortly.',
 };
 const status = Astro.url.searchParams.get('status') ?? '';
 const action = Astro.url.searchParams.get('action');
@@ -35,15 +35,15 @@ if (Astro.request.method === 'POST') {
   return Astro.redirect('/subscription/?status=' + (result.error ? 'unavailable' : 'unsubscribed'), 303);
 }
 
-const title = managing ? action === 'confirm' ? 'Confirm your subscription' : 'Unsubscribe' : 'Email subscriptions';
+const title = managing ? action === 'confirm' ? 'Confirm your follow' : 'Unfollow The Afterthoughts' : 'The Afterthoughts notifications';
 ---
 <WritingLayout title={title + ' · The Afterthoughts'}>
   <div class="subscription-page">
     <h1>{title}</h1>
     {managing ? (
       <form method="post" data-confirmation>
-        <p>{action === 'confirm' ? 'Confirm to receive new articles from The Afterthoughts by email.' : 'Unsubscribe to stop receiving new articles by email.'}</p>
-        <button type="submit">{action === 'confirm' ? 'Confirm subscription' : 'Unsubscribe'}</button>
+        <p>{action === 'confirm' ? 'Get an email when a new post is published in The Afterthoughts.' : 'Stop getting emails about new posts in The Afterthoughts.'}</p>
+        <button type="submit">{action === 'confirm' ? 'Confirm follow' : 'Unfollow'}</button>
       </form>
     ) : (
       <>

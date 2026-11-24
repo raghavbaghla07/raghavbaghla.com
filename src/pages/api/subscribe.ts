@@ -17,6 +17,8 @@ export const POST: APIRoute = async ({ request, url, site }) => {
   if (!emailConfigured() || !client || !site) return respond('unavailable');
   try {
     const fields = await request.formData();
+    const topic = fields.get('topic');
+    if (topic !== null && topic !== 'afterthoughts') return respond('invalid');
     const email = String(fields.get('email') ?? '').trim().toLowerCase();
     if (email.length > 254 || email.split('@')[0].length > 64 || !emailPattern.test(email)) return respond('invalid');
 
@@ -29,13 +31,13 @@ export const POST: APIRoute = async ({ request, url, site }) => {
     if (result.error) throw result.error;
     if (result.data) {
       const link = subscriptionLink(site, 'confirm', result.data);
-      await sendEmail(email, 'Confirm your subscription to The Afterthoughts',
-        'Confirm your email address to receive new articles:\n\n' + link + '\n\nThis link expires in 24 hours.',
+      await sendEmail(email, 'Confirm you want to follow The Afterthoughts',
+        'Confirm your email address to get a notification when a new post is published in The Afterthoughts.\n\n' + link + '\n\nThis link expires in 24 hours.',
         'confirm/' + result.data);
     }
     return respond('requested');
   } catch {
-    console.error('Newsletter signup failed');
+    console.error('Afterthoughts follow request failed');
     return respond('unavailable');
   }
 };

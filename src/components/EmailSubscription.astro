@@ -2,21 +2,22 @@
 import { emailConfigured } from '../lib/email-subscriptions';
 const available = emailConfigured();
 ---
-<section class="email-subscription" aria-labelledby="subscribe-title">
-  <h2 id="subscribe-title">Subscribe to The Afterthoughts</h2>
-  <p>Get an email when a new article is published.</p>
+<details class="email-subscription">
+  <summary>Follow The Afterthoughts</summary>
+  <p>Get an email when a new post is published in The Afterthoughts. You can unfollow anytime.</p>
   <form method="post" action="/api/subscribe" aria-describedby={!available ? 'subscription-status' : undefined}>
+    <input type="hidden" name="topic" value="afterthoughts" />
     <label for="subscription-email">Email address</label>
     <div class="email-fields">
       <input id="subscription-email" name="email" type="email" autocomplete="email" maxlength="254" required disabled={!available} />
-      <button type="submit" disabled={!available}>Subscribe</button>
+      <button type="submit" disabled={!available}>Follow by email</button>
     </div>
   </form>
-  {!available && <p id="subscription-status" class="subscription-status">Email signup is temporarily unavailable.</p>}
-</section>
+  {!available && <p id="subscription-status" class="subscription-status">Following by email is temporarily unavailable.</p>}
+</details>
 <style>
   .email-subscription { max-width:680px; margin:2rem 0; padding:1.5rem; border:1px solid #433b2f; border-radius:10px; background:#171410; color:#ece5db; }
-  h2 { margin:0; font:400 1.6rem Georgia,serif; }
+  summary { cursor:pointer; color:#e6cfad; font:400 1.35rem Georgia,serif; }
   p { color:#c5bbae; line-height:1.65; }
   label { display:block; margin-bottom:.5rem; font-size:.875rem; }
   .email-fields { display:flex; gap:.75rem; flex-wrap:wrap; }

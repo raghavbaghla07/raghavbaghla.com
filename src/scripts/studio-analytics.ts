@@ -33,7 +33,7 @@ export function setupAnalytics(client:SupabaseClient|null,openModeration:(id:str
     disposeContent?.(); disposeContent=undefined; stopLive(); results.replaceChildren();
     if (!report || !client) return;
     const r=report;
-    const coverage=()=>note('Audience labels, campaigns and subscription attribution are available from '+formatDate(r.since)+'.');
+    const coverage=()=>note('Audience labels, campaigns and follow attribution are available from '+formatDate(r.since)+'.');
     if (selected==='Overview') {
       const cards=element('div',undefined,'analytics-metrics');
       for (const [key,label] of metrics) {
@@ -112,15 +112,15 @@ export function setupAnalytics(client:SupabaseClient|null,openModeration:(id:str
         tableBlock('Top outbound links',headings,linkRows(r.links)),details,coverage());
     } else {
       const f=r.funnel, mail=r.newsletter;
-      const funnel=tableBlock('Article subscription funnel',['Stage','Article visits','From previous step','From article view'],[
+      const funnel=tableBlock('Topic follow funnel',['Stage','Article visits','From previous step','From article view'],[
         ['Article view',f.eligible,'—',ratio(f.eligible,f.eligible)],
-        ['Subscribe click',f.signups,ratio(f.signups,f.eligible),ratio(f.signups,f.eligible)],
-        ['Confirmed subscriber',f.confirmed,ratio(f.confirmed,f.signups),ratio(f.confirmed,f.eligible)],
+        ['Follow by email',f.signups,ratio(f.signups,f.eligible),ratio(f.signups,f.eligible)],
+        ['Confirmed follower',f.confirmed,ratio(f.confirmed,f.signups),ratio(f.confirmed,f.eligible)],
       ]);
       funnel.append(note('Each measured article visit counts once per stage. A confirmation stays with the original visit, even if it happens later.'));
       const delivery=tableBlock('Email delivery',['Measure','Count'],[
         ['Provider-accepted sends in period',mail.accepted],['Queued or retrying now',mail.queued],
-        ['Attempt limit reached · unsent now',mail.exhausted],['Confirmed subscribers now',mail.total],
+        ['Attempt limit reached · unsent now',mail.exhausted],['Confirmed followers now',mail.total],
       ]);
       delivery.append(note('Accepted sends count messages the email provider accepted. Inbox delivery receipts are unavailable.'));
       results.append(funnel,delivery,coverage());

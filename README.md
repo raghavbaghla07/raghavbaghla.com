@@ -176,16 +176,16 @@ login or client-side authorization bypass is provided.
 
 Apply `supabase/migrations/202611230001_readership.sql` after the existing migrations, then deploy the Astro app using its existing Vercel configuration. The migration uses the existing Studio owner allowlist and public Supabase credentials.
 
-The archive and articles offer email subscriptions to The Afterthoughts. Readers confirm their email address and can unsubscribe from any article email. Studio shows the total number of confirmed subscribers. Personal RSS feeds have no email addresses, so those readers need to subscribe by email.
+Readers can choose **Follow The Afterthoughts** on the writing archive or a post in that topic. They enter an email address after opening the follow control, confirm it, and receive a notification when a new post is published in The Afterthoughts. Each notification includes an unfollow link. Studio shows the total number of confirmed followers.
 
 To enable email delivery:
 
-1. Apply the migration 202611240001_email_subscriptions.sql after the readership migration.
+1. Apply the SQL migrations in filename order through `202611240004_afterthoughts_topic_follow.sql`. Studio publishes to The Afterthoughts, the site's current writing topic.
 2. Verify your sending domain in [Resend](https://resend.com/docs/dashboard/domains/introduction) and create a sending API key.
 3. Set the production Vercel environment variables SUPABASE_SECRET_KEY, RESEND_API_KEY, NEWSLETTER_FROM (an address on the verified domain), and CRON_SECRET (a long random value). Keep these out of client bundles and Git.
 4. Deploy. Subscribe with an inbox you control, confirm the link, and verify that Studio counts it. To verify article delivery before going live, publish a test article in a separate environment with a separate database and mailing list.
 
-The first publication queues a message for readers who already confirmed. Studio starts sending after publication, and the daily Vercel cron processes remaining deliveries and retries failures. Existing public articles, edits, and repeat publications do not start another send. Unpublishing cancels pending notifications. The queue attempts a delivery up to seven times. Check Vercel logs and Resend delivery activity when investigating failures.
+The first publication queues a message for readers who already confirmed a follow for the post's topic. Studio starts sending after publication, and the daily Vercel cron processes remaining deliveries and retries failures. Existing posts, edits, and repeat publications do not start another send. Unpublishing cancels pending notifications. The queue attempts a delivery up to seven times. Check Vercel logs and Resend delivery activity when investigating failures.
 
 ### Studio analytics dashboard
 
@@ -197,7 +197,7 @@ Open **Studio → Analytics** after signing in as an allowlisted owner. The five
 | Content | Search and sort articles, including published articles with zero visits. Compare the percentage reaching 25/50/75/90/100% and attributed confirmations. Rank the top 12 pages by total or average active time. |
 | Audience | Country, device and browser show page views. New and returning count distinct browsers. A returning browser had a recorded visit before the period began. |
 | Sources | Direct, search, social, newsletter and other traffic. Referring hosts and configured campaigns show the top 50. Outbound and all-article-link rankings show the top 100. Link position distinguishes multiple links to one host within an article. |
-| Newsletter | Follow measured article visits through subscribe clicks and confirmations, with conversions from the previous stage and from the article view. Inspect provider-accepted sends during the period and current queue, exhausted-attempt and confirmed-subscriber counts. |
+| Notifications | Follow measured article visits through follow requests and confirmations, with conversions from the previous stage and from the article view. Inspect provider-accepted notifications, queued messages, exhausted attempts and confirmed followers. |
 
 ### Measurement and privacy
 
