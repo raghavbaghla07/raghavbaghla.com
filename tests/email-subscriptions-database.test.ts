@@ -31,6 +31,8 @@ test('only confirmed readers receive the first publication and unsubscribing can
     await db.query("select set_config('request.jwt.claim.sub',$1,false)", [owner]);
     await publish(existing);
     await migrate('202611240001_email_subscriptions.sql');
+    await migrate('202611240002_studio_analytics.sql');
+    await migrate('202611240004_afterthoughts_topic_follow.sql');
     const claim = async () => (await db.query<{id:string;email:string;unsubscribe:string}>('select * from public.rb_claim_article_email()')).rows[0];
     const signup = async (email: string) => (await db.query<{token:string|null}>(
       "select public.rb_request_email_subscription($1,'ip-hash') as token", [email])).rows[0].token;
@@ -48,6 +50,13 @@ test('only confirmed readers receive the first publication and unsubscribing can
     await signup('pending@example.com');
     const confirm = await db.query<{confirmed:boolean}>('select public.rb_confirm_email_subscription($1) as confirmed', [token]);
     assert.equal(confirm.rows[0].confirmed, true);
+    assert.equal(await claim(), undefined);
+
+    await db.exec('reset role');
+    await db.query("insert into public.rb_drafts(id,title,body) values ($1,'Another topic','Body')", [crypto.randomUUID()]);
+    await db.exec(`insert into public.rb_posts(id,slug,title,body,email_topic)
+      select id,'another-topic',title,body,null from public.rb_drafts where title='Another topic'`);
+    await db.exec('set role service_role');
     assert.equal(await claim(), undefined);
 
     await db.exec('set role authenticated');
