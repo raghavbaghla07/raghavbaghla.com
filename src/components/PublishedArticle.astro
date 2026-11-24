@@ -2,10 +2,10 @@
 import EmailSubscription from "./EmailSubscription.astro";
 import type { PublishedPost } from '../lib/studio-content';
 import ArticleEngagement from './ArticleEngagement.astro';
-import { normalizeArticle, renderArticle, articleStats } from '../lib/article';
-interface Props { post: PublishedPost }
-const { post } = Astro.props;
-const article = normalizeArticle(post.article, post.body, post.images);
+import { renderArticle, articleStats } from '../lib/article';
+import type { ArticleContent } from '../lib/article';
+interface Props { post: PublishedPost; article: ArticleContent }
+const { post, article } = Astro.props;
 const date = new Date(post.published_at).toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric', timeZone:'Asia/Kolkata' });
 ---
 <article class="published-article" data-read-post={post.id}>

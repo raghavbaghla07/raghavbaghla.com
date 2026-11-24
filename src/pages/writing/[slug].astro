@@ -20,6 +20,6 @@ Astro.response.headers.set('Cache-Control','no-store');
 const article = post ? normalizeArticle(post.article,post.body,post.images) : null;
 ---
 <WritingLayout title={post ? `${post.title} · Raghav Baghla` : 'Writing · Raghav Baghla'} description={post ? article?.summary || excerpt(post.body) : undefined} article={Boolean(post)} image={article?.cover ? `/media/${article.cover}` : undefined} publishedAt={post?.published_at}>
-  {post ? <PublishedArticle post={post} /> : <section class="missing-post"><p class="eyebrow">Writing</p><h1>{unavailable ? 'Back in a little while.' : 'This thought isn’t here.'}</h1><p class="muted">{unavailable ? 'Writing is temporarily unavailable. Please try again shortly.' : 'This post may have been unpublished, or the link may be incorrect.'}</p><a href="/writing/">All writing</a></section>}
+  {post && article ? <PublishedArticle post={post} article={article} /> : <section class="missing-post"><p class="eyebrow">Writing</p><h1>{unavailable ? 'Back in a little while.' : 'This thought isn’t here.'}</h1><p class="muted">{unavailable ? 'Writing is temporarily unavailable. Please try again shortly.' : 'This post may have been unpublished, or the link may be incorrect.'}</p><a href="/writing/">All writing</a></section>}
 </WritingLayout>
 <style>.missing-post { max-width:760px; margin:80px auto 100px; } .missing-post a { display:inline-flex; align-items:center; min-height:44px; margin-top:24px; }</style>
