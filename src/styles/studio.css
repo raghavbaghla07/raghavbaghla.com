@@ -24,11 +24,6 @@ dialog{color:#eeeae3;background:#171715;border:1px solid #515346;border-radius:1
   line-height: 1.25;
 }
 
-.article-canvas .article-editor {
-  font-size: clamp(1.125rem, 1.05rem + .3vw, 1.25rem);
-  line-height: 1.7;
-}
-
 .title-input:focus {
   outline: none;
   border-bottom-color: #8d9a80;

@@ -1,7 +1,8 @@
-.article-content { color: var(--text, #efefe9); font-size: clamp(1rem, .95rem + .2vw, 1.125rem); line-height: 1.85; overflow-wrap: anywhere; }
+.article-content { color: var(--text, #efefe9); font-size: clamp(1rem, .97rem + .15vw, 1.0625rem); line-height: 1.5; overflow-wrap: anywhere; }
 .article-content > :first-child { margin-top: 0; }
 .article-content > :last-child { margin-bottom: 0; }
-.article-content p { margin: 0 0 .45em; min-height: 1em; }
+.article-content p { margin: 0 0 .45em; min-height: 1em; line-height: inherit; }
+.article-content > p { margin: 0; min-block-size: 1lh; max-inline-size: 68ch; }
 .article-content h2, .article-content h3, .article-content h4 { color: inherit; font-weight: 600; line-height: 1.35; margin: 1.8em 0 .7em; letter-spacing: -.025em; }
 .article-content h2 { font-size: 1.7em; }.article-content h3 { font-size: 1.35em; }.article-content h4 { font-size: 1.12em; }
 .article-content strong { font-weight: 700; }.article-content em { font-style: italic; }.article-content u { text-underline-offset: .2em; }

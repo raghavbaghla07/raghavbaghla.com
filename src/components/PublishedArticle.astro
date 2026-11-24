@@ -46,7 +46,7 @@ const date = new Date(post.published_at).toLocaleDateString('en-IN', { day:'nume
   .article-cover { max-width:960px; margin:40px auto 0; }
   .article-cover img { display:block; width:100%; max-height:640px; object-fit:contain; border:1px solid #302c26; border-radius:12px; background:#13120f; }
   .article-reading { max-width:680px; margin:48px auto 0; }
-  .article-reading :global(.article-content) { color:#d7d2c9; font-size:1.125rem; line-height:1.95; }
+  .article-reading :global(.article-content) { color:#d7d2c9; }
   .article-reading :global(.article-content h2), .article-reading :global(.article-content h3), .article-reading :global(.article-content h4) { color:#f1ede5; }
   .article-reading :global(.article-content h2) { font-weight:400; font-size:1.65em; letter-spacing:-.04em; margin-top:1.9em; }
   .article-reading :global(.article-content strong) { color:#f1ede5; }
@@ -59,5 +59,5 @@ const date = new Date(post.published_at).toLocaleDateString('en-IN', { day:'nume
   .article-end p { margin:0 0 8px; font-size:1.125rem; color:#eee6d9; }
   .article-end span { font-size:.875rem; line-height:1.7; color:#aaa398; }
   .article-end a { display:inline-flex; align-items:center; min-height:44px; color:#dec8a7; font-size:.875rem; }
-  @media(max-width:600px) { .published-article { padding:24px 0 64px; } .article-kicker { margin-top:28px; font-size:.6875rem; letter-spacing:.12em; } .article-byline { padding:22px 0; margin-top:28px; gap:12px; } .article-author { gap:10px; } .author-monogram { width:38px; height:38px; } .article-reading { margin-top:32px; } .article-reading :global(.article-content) { font-size:1rem; line-height:1.9; } .article-cover { margin-top:28px; } .article-reading :global(.article-content blockquote) { padding:16px 18px; } }
+  @media(max-width:600px) { .published-article { padding:24px 0 64px; } .article-kicker { margin-top:28px; font-size:.6875rem; letter-spacing:.12em; } .article-byline { padding:22px 0; margin-top:28px; gap:12px; } .article-author { gap:10px; } .author-monogram { width:38px; height:38px; } .article-reading { margin-top:32px; } .article-cover { margin-top:28px; } .article-reading :global(.article-content blockquote) { padding:16px 18px; } }
 </style>
