@@ -12,7 +12,7 @@ createServer((incoming,outgoing)=>{
   const port=fixture?54555:4323;
   const upstream=request({
     hostname:'127.0.0.1',port,path:incoming.url,method:incoming.method,
-    headers:{...incoming.headers,host:`127.0.0.1:${port}`},
+    headers:{...incoming.headers,host:'127.0.0.1:4322'},
   },response=>{
     outgoing.writeHead(response.statusCode??502,response.headers);
     response.pipe(outgoing);

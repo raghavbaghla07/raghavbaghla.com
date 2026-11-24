@@ -26,6 +26,9 @@ insert into public.rb_comments(post_id,visitor_id,display_name,body,status,creat
 select post_id,gen_random_uuid(),'Local reader','This made me revisit my notes.',
   case when started::date>=current_date-5 then 'pending' else 'approved' end,started
 from public.rb_visits where post_id is not null and depth>=98;
+insert into public.rb_comments(post_id,visitor_id,display_name,body)
+select id,gen_random_uuid(),'Local reader','Which passage would you read again?'
+from public.rb_posts order by title limit 1;
 -- Exercise the real confirmation and acceptance triggers.
 insert into public.rb_email_subscriptions(email,origin_visit)
 select id::text||'@example.invalid',id from public.rb_visits where converted;
