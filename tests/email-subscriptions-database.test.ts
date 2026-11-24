@@ -33,14 +33,18 @@ test('only confirmed readers receive the first publication and unsubscribing can
     await migrate('202611240001_email_subscriptions.sql');
     await migrate('202611240002_studio_analytics.sql');
     await migrate('202611240004_afterthoughts_topic_follow.sql');
+    await migrate('202611240005_instant_afterthoughts_follow.sql');
     const claim = async () => (await db.query<{id:string;email:string;unsubscribe:string}>('select * from public.rb_claim_article_email()')).rows[0];
     const signup = async (email: string) => (await db.query<{token:string|null}>(
       "select public.rb_request_email_subscription($1,'ip-hash') as token", [email])).rows[0].token;
     const count = async () => (await db.query<{subscribers:number}>(
       "select (public.rb_readership(7)->>'email_subscribers')::integer as subscribers")).rows[0].subscribers;
+    const follow = async (email: string) => (await db.query<{active:boolean}>(
+      "select public.rb_follow_afterthoughts($1,'instant-follow-test',null,null) as active", [email])).rows[0].active;
 
     await db.exec('set role anon');
     await assert.rejects(signup('first@example.com'), /permission/i);
+    await assert.rejects(follow('first@example.com'), /permission/i);
     await assert.rejects(claim(), /permission/i);
     await assert.rejects(db.query('select email from public.rb_email_subscriptions'), /permission/i);
     await db.exec('set role service_role');
@@ -89,6 +93,24 @@ test('only confirmed readers receive the first publication and unsubscribing can
     assert.equal(await claim(), undefined);
     await db.exec('set role authenticated');
     assert.equal(await count(), 0);
+    await assert.rejects(follow('pending@example.com'), /permission/i);
+    await db.exec('set role service_role');
+    assert.equal(await follow('pending@example.com'), true);
+    assert.equal(await follow('new@example.com'), true);
+    for (let retry = 0; retry < 6; retry++) assert.equal(await follow('new@example.com'), true);
+    assert.equal(await follow('blocked@example.com'), false);
+    await db.exec('reset role');
+    assert.deepEqual((await db.query("select email,confirmation from public.rb_email_subscriptions where confirmed_at is not null order by email")).rows,
+      [{email:'new@example.com',confirmation:null},{email:'pending@example.com',confirmation:null}]);
+    const newPost = crypto.randomUUID();
+    await db.query("insert into public.rb_drafts(id,title,body) values ($1,'Instant follow test','Body')", [newPost]);
+    await db.exec('set role authenticated');
+    assert.equal(await count(), 2);
+    await publish(newPost);
+    await db.exec('set role service_role');
+    const recipients = [(await claim())?.email, (await claim())?.email];
+    assert.deepEqual(recipients.sort(), ['new@example.com','pending@example.com']);
+    assert.equal(await claim(), undefined);
   } finally {
     await db.close();
   }
